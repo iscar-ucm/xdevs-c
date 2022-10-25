@@ -1,0 +1,3 @@
+* xDEVS/C
+
+Version of the xDEVS simulator for C projects.
