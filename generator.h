@@ -21,6 +21,7 @@
 #define GENERATOR_H
 
 #include <stdlib.h>
+#include <string.h>
 #include "devs.h"
 #include "job.h"
 
@@ -29,7 +30,7 @@
 
 typedef struct st_generator_state {
   double period;
-  job_t* next_job;
+  int job_next_id;
 } generator_state;
 
 #endif /* PROCESSOR_H */

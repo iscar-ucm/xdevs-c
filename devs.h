@@ -21,11 +21,17 @@
 #define _DEVS_H_
 
 #include <stdbool.h>
+#include <math.h>
+#include <string.h>
+
+#define MAX_PHASE_LENGTH 24
+#define PHASE_PASSIVE "PASSIVE"
+#define PHASE_ACTIVE "ACTIVE"
 
 typedef struct st_devs_state {
   double sigma;
-  const char* phase;
-  void* user_state;
+  char phase[MAX_PHASE_LENGTH];
+  void* user_data;
 } devs_state;
 
 typedef struct st_devs_node {
@@ -40,11 +46,13 @@ typedef struct st_devs_message {
   struct st_devs_node* tail;
 } devs_message;
 
-devs_message* new_devs_message();
-bool is_empty_devs_message(const devs_message* msg);
-devs_message* push_back_devs_message(devs_message* msg, int port_id, void* value);
-devs_state* default_deltext(devs_state* state, const double e, const devs_message* msg);
-double default_ta(const devs_state *s);
+devs_message *devs_message_new();
+bool devs_message_is_empty(const devs_message *msg);
+devs_message *devs_message_push_back(devs_message *msg, int port_id,
+                                     void *value);
+devs_state *deltext_default(devs_state *state, const double e,
+                            const devs_message *msg);
+double ta_default(const devs_state *s);
 
 struct atomic_operations {
   double (*ta) (const devs_state*);
@@ -54,7 +62,8 @@ struct atomic_operations {
   devs_state* (*deltcon) (devs_state*, const double, const devs_message*);
 };
 
-devs_state* passivate(devs_state* state);
+devs_state *passivate(devs_state *state);
+devs_state* hold_in(devs_state* state, double sigma, const char* phase);
 
 #endif
 

@@ -59,9 +59,12 @@ devs_state* default_deltext(devs_state* state, const double e, const devs_messag
 
 devs_state* passivate(devs_state* state) {
   state->sigma = INFINITY;
-  if(state->phase!=NULL) {
-    free(state->phase);
-    state->phase = "PASSIVE";
-  }
+  strncpy(state->phase, PHASE_PASSIVE, strlen(PHASE_PASSIVE));
+  return state;
+}
+
+devs_state* hold_in(devs_state* state, double sigma, const char* phase) {
+  state->sigma = sigma;
+  strncpy(state->phase, phase, strlen(phase));
   return state;
 }

@@ -18,20 +18,28 @@
  *  - José Luis Risco Martín
  */
 #include "generator.h"
+#include "devs.h"
 
 devs_message* lambda(const devs_state* s) {
-  devs_message* msg = new_devs_message(); 
-  push_back_devs_message(msg, PORT_OUT, s->user_state);
+  devs_message* msg = devs_message_new();
+  job_t* job = (job_t*)malloc(sizeof(job_t));
+  job->id = ((generator_state*)s->user_data)->job_next_id;
+  devs_message_push_back(msg, PORT_OUT, job);
   return msg;
 }
 
-devs_state* deltext(devs_state* state) {
-  passivate();
+devs_state* deltint(devs_state* state) {
+  generator_state* s = state->user_data;
+  s->job_next_id++;
+  return state;
 }
 
-struct atomic_operations processor = {
-                                      .ta = default_ta,
+devs_state *deltext(devs_state *state, const double e, const devs_message* msg) { return passivate(state); }
+
+struct atomic_operations generator = {
+                                      .ta = ta_default,
                                       .lambda = lambda,
-                                      .deltext = default_deltext
+                                      .deltint = deltint,
+                                      .deltext = deltext
 };
 
