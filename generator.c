@@ -18,7 +18,6 @@
  *  - José Luis Risco Martín
  */
 #include "generator.h"
-#include "devs.h"
 
 devs_message* lambda(const devs_state* s) {
   devs_message* msg = devs_message_new();
@@ -34,12 +33,28 @@ devs_state* deltint(devs_state* state) {
   return state;
 }
 
-devs_state *deltext(devs_state *state, const double e, const devs_message* msg) { return passivate(state); }
+devs_state *deltext(devs_state *state, const double e,
+                    const devs_message *msg) {
+  return passivate(state);
+}
 
-struct atomic_operations generator = {
-                                      .ta = ta_default,
-                                      .lambda = lambda,
-                                      .deltint = deltint,
-                                      .deltext = deltext
-};
+devs_state *deltcon(devs_state *state, const double e,
+                    const devs_message *msg) {
+  deltint(state);
+  return deltext(state, 0, msg);
+}
 
+
+atomic* generator_new(void *user_data) {
+  generator_state* data = (generator_state*)user_data;
+  atomic* generator = (atomic*)malloc(sizeof(atomic));
+  generator->state = (devs_state*)malloc(sizeof(devs_state));
+  generator->state->user_data = data;
+  activate(generator->state);
+  generator->ta = ta_default;
+  generator->lambda = lambda;
+  generator->deltint = deltint;
+  generator->deltext = deltext;
+  generator->deltcon = deltcon;
+  return generator;
+}

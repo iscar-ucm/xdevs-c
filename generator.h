@@ -22,7 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "devs.h"
+#include "atomic.h"
 #include "job.h"
 
 #define PORT_IN 0

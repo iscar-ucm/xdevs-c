@@ -50,20 +50,6 @@ devs_message *devs_message_new();
 bool devs_message_is_empty(const devs_message *msg);
 devs_message *devs_message_push_back(devs_message *msg, int port_id,
                                      void *value);
-devs_state *deltext_default(devs_state *state, const double e,
-                            const devs_message *msg);
-double ta_default(const devs_state *s);
-
-struct atomic_operations {
-  double (*ta) (const devs_state*);
-  devs_message* (*lambda) (const devs_state*);
-  devs_state* (*deltint) (devs_state*);
-  devs_state* (*deltext) (devs_state*, const double, const devs_message*);
-  devs_state* (*deltcon) (devs_state*, const double, const devs_message*);
-};
-
-devs_state *passivate(devs_state *state);
-devs_state* hold_in(devs_state* state, double sigma, const char* phase);
 
 #endif
 

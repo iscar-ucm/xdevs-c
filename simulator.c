@@ -17,35 +17,14 @@
  * Contributors:
  *  - José Luis Risco Martín
  */
-#include "devs.h"
-#include <stdlib.h>
-#include <stdbool.h>
+#include "simulator.h"
 
-devs_message* new_devs_message() {
-  devs_message* list = (devs_message*)malloc(sizeof(devs_message));
-  list->head = NULL;
-  list->tail = NULL;
-  return list;
+void simulator_initialize(struct atomic* model, int *tL, int *tN) {
+  model->initialize();
+  *tL = 0;
+  *tN = *tL + model->ta(model->state);
 }
 
-bool is_empty_devs_message(const devs_message* msg) {
-  return msg->head == NULL;
+double simulator_ta(const struct atomic* model) {
+  return model->ta(model->state);
 }
-
-devs_message* push_back_devs_message(devs_message* msg, int port_id, void* value) {
-  devs_node* node = (devs_node*)malloc(sizeof(devs_node));
-  node->port_id = port_id;
-  node->value = value;
-  node->prev = NULL;
-  node->next = NULL;
-  if(is_empty_devs_message(msg)) {
-    msg->head = msg->tail = node;
-  }
-  else {
-    node->prev = msg->tail;
-    msg->tail->next = node;
-    msg->tail = node;
-  }
-  return msg;
-}
-

@@ -17,35 +17,35 @@
  * Contributors:
  *  - José Luis Risco Martín
  */
-#include "devs.h"
-#include <stdlib.h>
-#include <stdbool.h>
+#include "atomic.h"
 
-devs_message* new_devs_message() {
-  devs_message* list = (devs_message*)malloc(sizeof(devs_message));
-  list->head = NULL;
-  list->tail = NULL;
-  return list;
+double ta_default(const devs_state *s) {
+  return s->sigma;
 }
 
-bool is_empty_devs_message(const devs_message* msg) {
-  return msg->head == NULL;
+devs_state* deltext_default(devs_state* state, const double e, const devs_message* msg) {
+  return NULL;
 }
 
-devs_message* push_back_devs_message(devs_message* msg, int port_id, void* value) {
-  devs_node* node = (devs_node*)malloc(sizeof(devs_node));
-  node->port_id = port_id;
-  node->value = value;
-  node->prev = NULL;
-  node->next = NULL;
-  if(is_empty_devs_message(msg)) {
-    msg->head = msg->tail = node;
-  }
-  else {
-    node->prev = msg->tail;
-    msg->tail->next = node;
-    msg->tail = node;
-  }
-  return msg;
+devs_state* resume(devs_state* state, const double e) {
+  state->sigma -= e;
+  return state;
 }
 
+devs_state* activate(devs_state* state) {
+  state->sigma = 0.0;
+  strncpy(state->phase, PHASE_ACTIVE, strlen(PHASE_ACTIVE));
+  return state;
+}
+
+devs_state* passivate(devs_state* state) {
+  state->sigma = INFINITY;
+  strncpy(state->phase, PHASE_PASSIVE, strlen(PHASE_PASSIVE));
+  return state;
+}
+
+devs_state* hold_in(devs_state* state, double sigma, const char* phase) {
+  state->sigma = sigma;
+  strncpy(state->phase, phase, strlen(phase));
+  return state;
+}
