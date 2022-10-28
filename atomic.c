@@ -19,33 +19,38 @@
  */
 #include "atomic.h"
 
-double ta_default(const devs_state *s) {
-  return s->sigma;
+double ta_default(const atomic* self) {
+  return self->state->sigma;
 }
 
-devs_state* deltext_default(devs_state* state, const double e, const devs_message* msg) {
-  return NULL;
+void deltext_default(atomic* self, const double e, const devs_message* msg) {
+  return;
 }
 
-devs_state* resume(devs_state* state, const double e) {
-  state->sigma -= e;
-  return state;
+void deltcon_default(atomic* self, const double e, const devs_message* msg) {
+  self->deltint(self);
+  self->deltext(self, 0, msg);
 }
 
-devs_state* activate(devs_state* state) {
-  state->sigma = 0.0;
-  strncpy(state->phase, PHASE_ACTIVE, strlen(PHASE_ACTIVE));
-  return state;
+void resume(atomic* self, const double e) {
+  self->state->sigma -= e;
+  return;
 }
 
-devs_state* passivate(devs_state* state) {
-  state->sigma = INFINITY;
-  strncpy(state->phase, PHASE_PASSIVE, strlen(PHASE_PASSIVE));
-  return state;
+void activate(atomic* self) {
+  self->state->sigma = 0.0;
+  strncpy(self->state->phase, PHASE_ACTIVE, strlen(PHASE_ACTIVE));
+  return;
 }
 
-devs_state* hold_in(devs_state* state, double sigma, const char* phase) {
-  state->sigma = sigma;
-  strncpy(state->phase, phase, strlen(phase));
-  return state;
+void passivate(atomic* self) {
+  self->state->sigma = INFINITY;
+  strncpy(self->state->phase, PHASE_PASSIVE, strlen(PHASE_PASSIVE));
+  return;
+}
+
+void hold_in(atomic* self, const double sigma, const char* phase) {
+  self->state->sigma = sigma;
+  strncpy(self->state->phase, phase, strlen(phase));
+  return;
 }

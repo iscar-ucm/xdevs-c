@@ -19,8 +19,18 @@
  */
 #include "simulator.h"
 
-void simulator_initialize(struct atomic* model, int *tL, int *tN) {
-  model->initialize();
+simulator* simulator_new() {
+  simulator* sim = (simulator*)malloc(sizeof(simulator));
+  return sim;
+}
+
+void simulator_delete(simulator* sim) {
+  sim->model->atomic_delete(sim->model);
+  free(sim);
+  return;
+}
+
+void simulator_initialize(simulator* sim, const double clock) {
   *tL = 0;
   *tN = *tL + model->ta(model->state);
 }

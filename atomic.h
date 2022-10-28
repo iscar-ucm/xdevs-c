@@ -22,23 +22,24 @@
 
 #include "devs.h"
 
-double ta_default(const devs_state *s);
-devs_state *deltext_default(devs_state *state, const double e,
-                            const devs_message *msg);
 
 typedef struct st_atomic {
   devs_state *state;
-  struct st_atomic* (*atomic_new) (void* user_data);
-  double (*ta) (const devs_state* state);
-  devs_message* (*lambda) (const devs_state* state);
-  devs_state* (*deltint) (devs_state* state);
-  devs_state* (*deltext) (devs_state* state, const double e, const devs_message* msg);
-  devs_state* (*deltcon) (devs_state* state, const double e, const devs_message* msg);
+  void (*atomic_initialize) (struct st_atomic* self);
+  void (*atomic_exit) (const struct st_atomic* self);
+  double (*ta) (const struct st_atomic* self);
+  devs_message* (*lambda) (const struct st_atomic* self);
+  void (*deltint) (struct st_atomic* self);
+  void (*deltext) (struct st_atomic* self, const double e, const devs_message* msg);
+  void (*deltcon) (struct st_atomic* self, const double e, const devs_message* msg);
 } atomic;
 
-devs_state *resume(devs_state *state, const double e);
-devs_state* activate(devs_state *state);
-devs_state *passivate(devs_state *state);
-devs_state *hold_in(devs_state *state, double sigma, const char *phase);
+double ta_default(const atomic* self);
+void deltext_default(atomic *self, const double e, const devs_message *msg);
+void deltcon_default(atomic *self, const double e, const devs_message *msg);
+void resume(atomic* self, const double e);
+void activate(atomic* self);
+void passivate(atomic* self);
+void hold_in(atomic *self, const double sigma, const char *phase);
 
 #endif /* ATOMIC_H */

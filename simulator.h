@@ -22,7 +22,18 @@
 
 #include "atomic.h"
 
-void simulator_initialize(struct atomic* model, int *tL, int *tN);
-double simulator_ta(const struct atomic* model);
+typedef struct st_simulator {
+  atomic* model;
+  double clock, tL, tN;
+} simulator;
+
+simulator* simulator_new();
+void simulator_delete(simulator* sim);
+void simulator_initialize(simulator* sim, const atomic* model, const double clock);
+void simulator_exit ();
+double simulator_ta(simulator* sim);
+devs_message* simulator_lambda(const simulator* sim);
+void simulator_deltfcn(simulator* sim);
+void simulator_clear(simulator* sim);
 
 #endif /* SIMULATOR_H */
