@@ -17,23 +17,37 @@
  * Contributors:
  *  - José Luis Risco Martín
  */
-#ifndef SIMULATOR_H
-#define SIMULATOR_H
+#ifndef SIMULATION_H
+#define SIMULATION_H
 
-#include "atomic.h"
+#include "modeling.h"
 
 typedef struct st_simulator {
   atomic* model;
   double clock, tL, tN;
 } simulator;
 
-simulator* simulator_new();
+simulator* simulator_new(atomic* model);
 void simulator_delete(simulator* sim);
-void simulator_initialize(simulator* sim, const atomic* model, const double clock);
-void simulator_exit ();
-double simulator_ta(simulator* sim);
+void simulator_initialize(simulator* sim, atomic* model, double clock);
+void simulator_exit (simulator* sim);
+double simulator_ta(const simulator* sim);
 devs_message* simulator_lambda(const simulator* sim);
-void simulator_deltfcn(simulator* sim);
-void simulator_clear(simulator* sim);
+void simulator_deltfcn(simulator* sim, const devs_message* msg);
+// void simulator_clear(simulator *sim);
 
-#endif /* SIMULATOR_H */
+typedef struct st_coordinator {
+  coupled* model;
+  list* simulators;
+  double clock, tL, tN;
+} coordinator;
+
+coordinator* coordinator_new(const coupled* model);
+void coordinator_delete(coordinator* sim);
+void coordinator_initialize(coordinator* sim, coupled* model, double clock);
+void coordinator_exit (coordinator* sim);
+double coordinator_ta(const coordinator* sim);
+devs_message* coordinator_lambda(const coordinator* sim);
+void coordinator_deltfcn(coordinator* sim, const devs_message* msg);
+
+#endif /* SIMULATION_H */

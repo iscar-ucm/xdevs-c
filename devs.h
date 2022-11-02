@@ -20,6 +20,7 @@
 #ifndef _DEVS_H_
 #define _DEVS_H_
 
+#include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
@@ -50,6 +51,22 @@ devs_message *devs_message_new();
 bool devs_message_is_empty(const devs_message *msg);
 devs_message *devs_message_push_back(devs_message *msg, int port_id,
                                      void *value);
+
+typedef struct st_list_node {
+  void* data;
+  struct st_list_node* prev;
+  struct st_list_node* next;
+} list_node;
+
+typedef struct st_list {
+  list_node* head;
+  list_node* tail;
+} list;
+
+list *list_new();
+void list_delete(list* l);
+bool list_is_empty(const list* l);
+void list_push_back(list* l, void* data);
 
 #endif
 

@@ -17,7 +17,7 @@
  * Contributors:
  *  - José Luis Risco Martín
  */
-#include "atomic.h"
+#include "modeling.h"
 
 double ta_default(const atomic* self) {
   return self->state->sigma;
@@ -53,4 +53,19 @@ void hold_in(atomic* self, const double sigma, const char* phase) {
   self->state->sigma = sigma;
   strncpy(self->state->phase, phase, strlen(phase));
   return;
+}
+
+void add_coupling(coupled* self, void *component_from, int port_from, void *component_to, int port_to) {
+  coupling* c = (coupling*)malloc(sizeof(coupling));
+  c->component_from = component_from;
+  c->port_from = port_from;
+  c->component_to = component_to;
+  c->port_to = port_to;
+  if (component_from == self) {
+    list_push_back(self->eic, c);
+  } else if (component_to == self) {
+    list_push_back(self->eoc, c);
+  } else {
+    list_push_back(self->ic, c);
+  }
 }

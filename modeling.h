@@ -17,13 +17,18 @@
  * Contributors:
  *  - José Luis Risco Martín
  */
-#ifndef ATOMIC_H
-#define ATOMIC_H
+#ifndef MODELING_H
+#define MODELING_H
 
 #include "devs.h"
 
+#define DEVS_ATOMIC 1
+#define DEVS_COUPLED 2
+#define DEVS_IS_ATOMIC(component_type) (component_type==DEVS_ATOMIC) ? true : false;
+#define DEVS_IS_COUPLED(component_type) (component_type==DEVS_COUPLED) ? true : false;
 
 typedef struct st_atomic {
+  int component_type = DEVS_ATOMIC;
   devs_state *state;
   void (*atomic_initialize) (struct st_atomic* self);
   void (*atomic_exit) (const struct st_atomic* self);
@@ -42,4 +47,23 @@ void activate(atomic* self);
 void passivate(atomic* self);
 void hold_in(atomic *self, const double sigma, const char *phase);
 
-#endif /* ATOMIC_H */
+typedef struct st_coupled {
+  int component_type = DEVS_COUPLED;
+  list* components;
+  list* ic;
+  list* eic;
+  list* eoc;
+} coupled;
+
+typedef struct st_coupling {
+  void* component_from;
+  int port_from;
+  void* component_to;
+  int port_to;
+} coupling;
+
+
+void add_coupling(coupled *self, void *component_from, int port_from,
+                  void *component_to, int port_to);
+
+#endif /* MODELING_H */
