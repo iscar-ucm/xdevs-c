@@ -22,8 +22,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "atomic.h"
 #include "job.h"
+#include "modeling.h"
 
 #define PORT_IN 0
 #define PORT_OUT 1
@@ -33,4 +33,4 @@ typedef struct st_generator_state {
   int job_next_id;
 } generator_state;
 
-#endif /* PROCESSOR_H */
+#endif /* GENERATOR_H */

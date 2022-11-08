@@ -23,8 +23,11 @@
 typedef struct st_job {
   int id;
   double time;
-} job_t;
+} job;
 
-job_t *new_job(int id, double time);
+job *new_job(int id, double time);
+
+/* This function clones a given job. */
+job *clone_job(const job* j);
 
 #endif /* JOB_H */

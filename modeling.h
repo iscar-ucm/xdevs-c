@@ -28,7 +28,7 @@
 #define DEVS_IS_COUPLED(component_type) (component_type==DEVS_COUPLED) ? true : false;
 
 typedef struct st_atomic {
-  int component_type = DEVS_ATOMIC;
+  int component_type;
   devs_state *state;
   void (*atomic_initialize) (struct st_atomic* self);
   void (*atomic_exit) (const struct st_atomic* self);
@@ -48,7 +48,7 @@ void passivate(atomic* self);
 void hold_in(atomic *self, const double sigma, const char *phase);
 
 typedef struct st_coupled {
-  int component_type = DEVS_COUPLED;
+  int component_type;
   list* components;
   list* ic;
   list* eic;

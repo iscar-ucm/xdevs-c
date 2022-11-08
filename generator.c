@@ -21,10 +21,10 @@
 
 devs_message* lambda(const atomic* self) {
   devs_message* msg = devs_message_new();
-  job_t* job = (job_t*)malloc(sizeof(job_t));
+  job* j = (job*)malloc(sizeof(job));
   generator_state* s = self->state->user_data;
-  job->id = s->job_next_id;
-  devs_message_push_back(msg, PORT_OUT, job);
+  j->id = s->job_next_id;
+  devs_message_push_back(msg, PORT_OUT, j);
   return msg;
 }
 
@@ -45,6 +45,7 @@ void initialize(atomic* self) {
 
 atomic* generator_new(double period) {
   atomic* generator = (atomic*)malloc(sizeof(atomic));
+  generator->component_type = DEVS_ATOMIC;
   generator_state* data = (generator_state*)malloc(sizeof(generator_state));
   data->period = period;
   data->job_next_id = 1;

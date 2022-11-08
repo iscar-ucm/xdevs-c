@@ -24,12 +24,12 @@
 
 typedef struct st_simulator {
   atomic* model;
-  double clock, tL, tN;
+  double tL, tN;
 } simulator;
 
 simulator* simulator_new(atomic* model);
 void simulator_delete(simulator* sim);
-void simulator_initialize(simulator* sim, atomic* model, double clock);
+void simulator_initialize(simulator* sim, atomic* model);
 void simulator_exit (simulator* sim);
 double simulator_ta(const simulator* sim);
 devs_message* simulator_lambda(const simulator* sim);
@@ -39,12 +39,12 @@ void simulator_deltfcn(simulator* sim, const devs_message* msg);
 typedef struct st_coordinator {
   coupled* model;
   list* simulators;
-  double clock, tL, tN;
+  double tL, tN;
 } coordinator;
 
 coordinator* coordinator_new(const coupled* model);
 void coordinator_delete(coordinator* sim);
-void coordinator_initialize(coordinator* sim, coupled* model, double clock);
+void coordinator_initialize(coordinator* sim, coupled* model);
 void coordinator_exit (coordinator* sim);
 double coordinator_ta(const coordinator* sim);
 devs_message* coordinator_lambda(const coordinator* sim);
