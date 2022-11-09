@@ -18,6 +18,7 @@
  *  - José Luis Risco Martín
  */
 #include "modeling.h"
+#include <string.h>
 
 double ta_default(const atomic* self) {
   return self->state->sigma;
@@ -53,6 +54,11 @@ void hold_in(atomic* self, const double sigma, const char* phase) {
   self->state->sigma = sigma;
   strncpy(self->state->phase, phase, strlen(phase));
   return;
+}
+
+bool phase_is(atomic *self, const char *phase) {
+  int res = strcmp(self->state->phase, phase);
+  return res == 0;
 }
 
 void add_coupling(coupled* self, void *component_from, int port_from, void *component_to, int port_to) {

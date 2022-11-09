@@ -79,17 +79,19 @@ bool devs_message_is_empty(const devs_message *msg);
 /// @return The new DEVS message.
 devs_message *devs_message_push_back(devs_message *msg, int port_id, void *value);
 
+bool devs_port_is_empty(const devs_message *msg, unsigned int port_id);
+
 /// @brief From a given DEVS message, returns all the values/events associated to a given port.
 /// @param msg DEVS message from which we want to extract the events.
 /// @param port_id Input port.
 /// @return All the events associated to the given port, as a linked list.
-list* devs_message_get_values(const devs_message* msg, unsigned int port_id);
+list *devs_port_get_values(const devs_message *msg, unsigned int port_id);
 
 /// @brief Get the first value from a given DEVS message and input port.
 /// @param msg The DEVS message.
 /// @param port_id The input port idenfitier.
 /// @return The first value of the DEVS message.
-void* devs_message_get_value(const devs_message* msg, unsigned int port_id);
+void *devs_port_get_value(const devs_message *msg, unsigned int port_id);
 
 list *list_new();
 void list_delete(list *l);

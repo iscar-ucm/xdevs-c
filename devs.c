@@ -54,7 +54,18 @@ devs_message *devs_message_push_back(devs_message *msg, int port_id, void *value
   return msg;
 }
 
-list *devs_message_get_values(const devs_message *msg, unsigned int port_id)
+bool devs_port_is_empty(const devs_message *msg, unsigned int port_id) {
+  devs_node *node = msg->head;
+  while (node != NULL) {
+    if (node->port_id == port_id) {
+      return false;
+    }
+    node = node->next;
+  }
+  return true;
+}
+
+list *devs_port_get_values(const devs_message *msg, unsigned int port_id)
 {
   list *values = list_new();
   devs_node *node = msg->head;
@@ -69,7 +80,7 @@ list *devs_message_get_values(const devs_message *msg, unsigned int port_id)
   return values;
 }
 
-void *devs_message_get_value(const devs_message *msg, unsigned int port_id)
+void *devs_port_get_value(const devs_message *msg, unsigned int port_id)
 {
   devs_node *node = msg->head;
   while (node != NULL)

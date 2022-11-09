@@ -39,14 +39,6 @@ typedef struct st_atomic {
   void (*deltcon) (struct st_atomic* self, const double e, const devs_message* msg);
 } atomic;
 
-double ta_default(const atomic* self);
-void deltext_default(atomic *self, const double e, const devs_message *msg);
-void deltcon_default(atomic *self, const double e, const devs_message *msg);
-void resume(atomic* self, const double e);
-void activate(atomic* self);
-void passivate(atomic* self);
-void hold_in(atomic *self, const double sigma, const char *phase);
-
 typedef struct st_coupled {
   int component_type;
   list* components;
@@ -62,6 +54,14 @@ typedef struct st_coupling {
   int port_to;
 } coupling;
 
+double ta_default(const atomic* self);
+void deltext_default(atomic *self, const double e, const devs_message *msg);
+void deltcon_default(atomic *self, const double e, const devs_message *msg);
+void resume(atomic* self, const double e);
+void activate(atomic* self);
+void passivate(atomic* self);
+void hold_in(atomic *self, const double sigma, const char *phase);
+bool phase_is(atomic *self, const char *phase);
 
 void add_coupling(coupled *self, void *component_from, int port_from,
                   void *component_to, int port_to);
