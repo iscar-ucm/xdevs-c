@@ -19,29 +19,29 @@
  */
 #include "generator.h"
 
-devs_message* lambda(const atomic* self) {
-  devs_message* msg = devs_message_new();
-  job* j = (job*)malloc(sizeof(job));
-  generator_state* s = self->state->user_data;
-  j->id = s->job_next_id;
-  devs_message_push_back(msg, PORT_OUT, j);
-  return msg;
-}
-
-void deltint(atomic* self) {
-  generator_state* s = self->state->user_data;
-  s->job_next_id++;
-  return;
-}
-
-void deltext(atomic *self, const double e, const devs_message *msg) {
-  passivate(self);
-}
-
 void initialize(atomic* self) {
   activate(self);
   return;
 }
+
+void lambda(atomic* self) {
+  job* j = (job*)malloc(sizeof(job));
+  generator_state* s = self->state.user_data;
+  j->id = s->job_next_id;
+  devs_message_push_back(&(self->output), GENERATOR_OUT, j);
+  return;
+}
+
+void deltint(atomic* self) {
+  generator_state* s = self->state.user_data;
+  s->job_next_id++;
+  return;
+}
+
+void deltext(atomic *self, const double e) {
+  passivate(self);
+}
+
 
 atomic* generator_new(double period) {
   atomic* generator = (atomic*)malloc(sizeof(atomic));
@@ -49,14 +49,13 @@ atomic* generator_new(double period) {
   generator_state* data = (generator_state*)malloc(sizeof(generator_state));
   data->period = period;
   data->job_next_id = 1;
-  generator->state = (devs_state*)malloc(sizeof(devs_state));
-  generator->state->user_data = data;
+  generator->state.user_data = data;
+  generator->initialize = initialize;
   generator->ta = ta_default;
   generator->lambda = lambda;
   generator->deltint = deltint;
   generator->deltext = deltext;
   generator->deltcon = deltcon_default;
+  generator->exit = exit_default;
   return generator;
 }
-
-

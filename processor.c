@@ -19,37 +19,36 @@
  */
 #include "processor.h"
 
-devs_message *lambda(const atomic *self) {
-  devs_message *msg = devs_message_new();
-  processor_state *s = self->state->user_data;
-  devs_message_push_back(msg, PORT_OUT, clone_job(s->current_job));
-  return msg;
+void lambda(atomic *self) {
+  processor_state *s = self->state.user_data;
+  devs_message_push_back(&(self->output), PROCESSOR_OUT, clone_job(s->current_job));
+  return;
 }
 
 void deltint(atomic *self) {
-  processor_state *s = self->state->user_data;
+  processor_state *s = self->state.user_data;
   // Free current job:
   if (s->current_job != NULL) {
     free(s->current_job);
     s->current_job = NULL;
   }
   // Update clock:
-  s->clock += self->state->sigma;
+  s->clock += self->state.sigma;
   // Passivate the current model:
   passivate(self);
   return;
 }
 
-void deltext(atomic *self, const double e, const devs_message *msg) {
+void deltext(atomic *self, const double e) {
   resume(self, e);
-  processor_state *s = self->state->user_data;
+  processor_state *s = self->state.user_data;
   // Update clock:
   s->clock += e;
   // If the model is available, then take the job:
   if (s->current_job == NULL) {
-    s->current_job = (job *)devs_message_get_value(msg, PORT_IN);
+    s->current_job = (job *)devs_port_get_value(&(self->input), PROCESSOR_IN);
     s->current_job->time = s->clock;
-    hold_in(self, s->processing_time, "active");
+    hold_in(self, "active", s->processing_time);
   }    
 }
 
@@ -63,12 +62,13 @@ atomic *processor_new(double period) {
   processor->component_type = DEVS_ATOMIC;
   processor_state *data = (processor_state *)malloc(sizeof(processor_state));
   data->current_job = NULL;
-  processor->state = (devs_state *)malloc(sizeof(devs_state));
-  processor->state->user_data = data;
+  processor->state.user_data = data;
+  processor->atomic_initialize = initialize;
   processor->ta = ta_default;
   processor->lambda = lambda;
   processor->deltint = deltint;
   processor->deltext = deltext;
   processor->deltcon = deltcon_default;
+  processor->atomic_exit = exit_default;
   return processor;
 }

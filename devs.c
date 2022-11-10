@@ -97,6 +97,7 @@ void *devs_port_get_value(const devs_message *msg, unsigned int port_id)
 list *list_new()
 {
   list *l = (list *)malloc(sizeof(list));
+  l->size = 0;
   l->head = NULL;
   l->tail = NULL;
   return l;
@@ -139,4 +140,7 @@ void list_push_back(list *l, void *data)
     node->prev = l->tail;
   }
   l->tail = node;
+  l->size++;
 }
+
+unsigned int list_size(const list *l) { return l->size; }

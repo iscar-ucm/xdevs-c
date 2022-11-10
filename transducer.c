@@ -21,15 +21,20 @@
 #include "devs.h"
 #include "job.h"
 
-devs_message *lambda(const atomic *self) {
-  devs_message *msg = devs_message_new();
-  devs_message_push_back(msg, PORT_OUT, new_job(-1, -1));
-  return msg;
+void initialize(atomic *self) {
+  transducer_state *s = self->state.user_data;
+  hold_in(self, "active", s->obs_time);
+  return;
+}
+
+void lambda(atomic *self) {
+  devs_message_push_back(&(self->output), TRANSDUCER_OUT, new_job(-1, -1));
+  return;
 }
 
 void deltint(atomic *self) {
-  transducer_state *s = self->state->user_data;
-  s->clock += self->state->sigma;
+  transducer_state *s = self->state.user_data;
+  s->clock += self->state.sigma;
   if(phase_is(self, "active")) {
     double avg_ta_time = 0.0, throughput = 0.0;
     if(!list_is_empty(s->jobs_solved)) {
@@ -41,7 +46,7 @@ void deltint(atomic *self) {
     printf("Jobs solved: %d", list_size(s->jobs_solved));
     printf("Average TA = %f", avg_ta_time);
     printf("Throughput = %f", throughput);
-    hold_in(self, 0, "done");
+    hold_in(self, "done", 0.0);
   }
   else {
     passivate(self);
@@ -49,31 +54,25 @@ void deltint(atomic *self) {
   return;
 }
 
-void deltext(atomic *self, const double e, const devs_message *msg) {
+void deltext(atomic *self, const double e) {
   resume(self, e);
-  transducer_state *s = self->state->user_data;
+  transducer_state *s = self->state.user_data;
   s->clock += e;
 
   if (phase_is(self, "active")) {
     job* j;
-    if ((j = devs_port_get_value(msg, PORT_ARRIVED))!=NULL) {
+    if ((j = devs_port_get_value(&(self->input), TRANSDUCER_ARRIVED))!=NULL) {
       printf("Start job %d, @ t = %f",  + j->id, s->clock);
       j->time = s->clock;
       list_push_back(s->jobs_arrived, j);
     }
-    if ((j = devs_port_get_value(msg, PORT_SOLVED))!=NULL) {
+    if ((j = devs_port_get_value(&(self->input), TRANSDUCER_SOLVED))!=NULL) {
       s->total_ta += (s->clock - j->time);
       printf("Finish job %d @ t = %f", j->id, s->clock);
       j->time = s->clock;
       list_push_back(s->jobs_solved, j);
     }
   }
-}
-
-void initialize(atomic *self) {
-  transducer_state *s = self->state->user_data;
-  hold_in(self, s->obs_time, "active");
-  return;
 }
 
 atomic *transducer_new(double obs_time) {
@@ -85,12 +84,13 @@ atomic *transducer_new(double obs_time) {
   data->obs_time = obs_time;
   data->jobs_arrived = list_new();
   data->jobs_solved = list_new();
-  transducer->state = (devs_state *)malloc(sizeof(devs_state));
-  transducer->state->user_data = data;
+  transducer->state.user_data = data;
+  transducer->initialize = initialize;
   transducer->ta = ta_default;
   transducer->lambda = lambda;
   transducer->deltint = deltint;
   transducer->deltext = deltext;
   transducer->deltcon = deltcon_default;
+  transducer->exit = exit_default;
   return transducer;
 }

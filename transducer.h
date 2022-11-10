@@ -26,14 +26,15 @@
 #include "job.h"
 #include "modeling.h"
 
-#define PORT_ARRIVED 0
-#define PORT_SOLVED 1
-#define PORT_OUT 2
+#define TRANSDUCER_ARRIVED 0
+#define TRANSDUCER_SOLVED 1
+#define TRANSDUCER_OUT 2
 
 typedef struct st_transducer_state {
   double clock, total_ta, obs_time;
   list *jobs_arrived, *jobs_solved;
 } transducer_state;
 
+atomic *transducer_new(double obs_time);
 
 #endif /* TRANSDUCER_H */

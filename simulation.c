@@ -36,14 +36,14 @@ void simulator_delete(simulator *sim)
 void simulator_initialize(simulator *sim, atomic *model)
 {
   sim->model = model;
-  sim->model->atomic_initialize(sim->model);
+  sim->model->initialize(sim->model);
   sim->tL = 0.0;
   sim->tN = sim->tL + sim->model->ta(sim->model);
 }
 
 void simulator_exit(simulator *sim)
 {
-  sim->model->atomic_exit(sim->model);
+  sim->model->exit(sim->model);
 }
 
 double simulator_ta(const simulator *sim)
@@ -51,20 +51,20 @@ double simulator_ta(const simulator *sim)
   return sim->model->ta(sim->model);
 }
 
-void simulator_deltfcn(simulator *sim, const devs_message *msg)
+void simulator_deltfcn(simulator *sim)
 {
   double t = 0.0;
-  bool is_input_empty = devs_message_is_empty(msg);
+  bool is_input_empty = devs_message_is_empty(&(sim->model->input));
   if (!is_input_empty)
   {
     double e = sim->tL;
     if (t == sim->tN)
     {
-      sim->model->deltcon(sim->model, e, msg);
+      sim->model->deltcon(sim->model, e);
     }
     else
     {
-      sim->model->deltext(sim->model, e, msg);
+      sim->model->deltext(sim->model, e);
     }
   }
   else if (t == sim->tN)
@@ -76,22 +76,19 @@ void simulator_deltfcn(simulator *sim, const devs_message *msg)
   /* TODO: Should I free here the memory associated with msg??? */
 }
 
-devs_message *simulator_lambda(const simulator *sim)
+void simulator_lambda(simulator *sim)
 {
   if (sim->tN)
   {
-    return sim->model->lambda(sim->model);
+    sim->model->lambda(sim->model);
   }
-  return NULL;
 }
 
 coordinator *coordinator_new(const coupled *model)
 {
-  coordinator *sim = (coordinator *)malloc(sizeof(coordinator));
-  sim->model = model;
-  sim->simulators = (list *)malloc(sizeof(list));
-  list *components = model->components;
-  list_node *current_node = components->head;
+  coordinator *c = (coordinator *)malloc(sizeof(coordinator));
+  c->model = model;
+  list_node *current_node = model->components.head;
   while (current_node != NULL)
   {
     int component_type = (int)(current_node->data + 0);
@@ -100,27 +97,21 @@ coordinator *coordinator_new(const coupled *model)
     if (is_coupled)
     {
       coordinator *current_sim = coordinator_new(current_node->data);
-      list_push_back(sim->simulators, current_sim);
+      list_push_back(&(c->simulators), current_sim);
     }
     else if (is_atomic)
     {
       simulator *current_sim = simulator_new(current_node->data);
-      list_push_back(sim->simulators, current_sim);
+      list_push_back(&(c->simulators), current_sim);
     }
     current_node = current_node->next;
   }
-  return sim;
+  return c;
 }
 
-void coordinator_delete(coordinator *sim)
+void coordinator_initialize(coordinator *sim)
 {
-  free(sim);
-  return;
-}
-
-void coordinator_initialize(coordinator *sim, coupled *model)
-{
-  list_node* n = sim->simulators->head;
+  list_node* n = sim->simulators.head;
   while(n!=NULL) {
     simulator* s = n->data;
     simulator_initialize(s, s->model);
@@ -130,19 +121,10 @@ void coordinator_initialize(coordinator *sim, coupled *model)
   sim->tN = sim->tL + coordinator_ta(sim);
 }
 
-void coordinator_exit(coordinator *sim)
-{
-  list_node* n = sim->simulators->head;
-  while(n!=NULL) {
-    simulator* s = n->data;
-    simulator_exit(s);
-  }
-}
-
 double coordinator_ta(const coordinator *sim)
 {
   double tn = INFINITY;
-  list_node* n = sim->simulators->head;
+  list_node* n = sim->simulators.head;
   while(n!=NULL) {
     simulator* s = n->data;
     if(s->tN < tn) tn = s->tN;
@@ -151,26 +133,46 @@ double coordinator_ta(const coordinator *sim)
   return tn;
 }
 
-void coordinator_deltfcn(coordinator *sim, const devs_message *msg)
+devs_message *coordinator_lambda(const coordinator *sim, double t)
 {
-  coordinator_propagate_input(sim, msg);
-  list_node* n = sim->simulators->head;
-  while(n!=NULL) {
-    simulator* s = n->data;
-    simulator_deltfcn(s, s->model);
-    n = n->next;
-  }
-  sim->tL = 0;
-  sim->tN = sim->tL + coordinator_ta(sim);
-}
-
-devs_message *coordinator_lambda(const coordinator *sim)
-{
-  list_node* n = sim->simulators->head;
+  list_node* n = sim->simulators.head;
   while(n!=NULL) {
     simulator* s = n->data;
     simulator_lambda(s);
     n = n->next;
   }
   coordinator_propagate_output(sim);
+}
+
+void coordinator_deltfcn(coordinator *sim, double t)
+{
+  coordinator_propagate_input(sim);
+  list_node* n = sim->simulators.head;
+  while(n!=NULL) {
+    simulator* s = n->data;
+    simulator_deltfcn(s);
+    n = n->next;
+  }
+  sim->tL = 0;
+  sim->tN = sim->tL + coordinator_ta(sim);
+}
+
+void coordinator_exit(coordinator *sim)
+{
+  list_node* n = sim->simulators.head;
+  while(n!=NULL) {
+    simulator* s = n->data;
+    simulator_exit(s);
+  }
+}
+
+void coordinator_simulate(coordinator* sim, unsigned long int nsteps) {
+  printf("Starting simulation ...\n");
+  unsigned long int steps = 0;
+  while(steps < nsteps && sim->tN < INFINITY) {
+    coordinator_lambda(sim, sim->tN);
+    coordinator_deltfcn(sim, sim->tN);
+    coordinator_clear(sim);
+    steps++;
+  }
 }

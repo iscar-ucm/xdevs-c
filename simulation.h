@@ -32,22 +32,19 @@ void simulator_delete(simulator* sim);
 void simulator_initialize(simulator* sim, atomic* model);
 void simulator_exit (simulator* sim);
 double simulator_ta(const simulator* sim);
-devs_message* simulator_lambda(const simulator* sim);
-void simulator_deltfcn(simulator* sim, const devs_message* msg);
+void simulator_lambda(simulator* sim);
+void simulator_deltfcn(simulator* sim);
 // void simulator_clear(simulator *sim);
 
 typedef struct st_coordinator {
   coupled* model;
-  list* simulators;
+  list simulators;
   double tL, tN;
 } coordinator;
 
 coordinator* coordinator_new(const coupled* model);
-void coordinator_delete(coordinator* sim);
-void coordinator_initialize(coordinator* sim, coupled* model);
+void coordinator_initialize(coordinator* sim);
+void coordinator_simulate(coordinator* sim, usinged long int nsteps);
 void coordinator_exit (coordinator* sim);
-double coordinator_ta(const coordinator* sim);
-devs_message* coordinator_lambda(const coordinator* sim);
-void coordinator_deltfcn(coordinator* sim, const devs_message* msg);
 
 #endif /* SIMULATION_H */

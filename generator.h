@@ -25,12 +25,23 @@
 #include "job.h"
 #include "modeling.h"
 
-#define PORT_IN 0
-#define PORT_OUT 1
+#define GENERATOR_IN 0
+#define GENERATOR_OUT 1
 
 typedef struct st_generator_state {
   double period;
   int job_next_id;
 } generator_state;
+
+/**
+ * @brief      Creates a new generator atomic model.
+ *
+ * @details    Creates a new generator DEVS atomic model.
+ *
+ * @param      period Jobs generation period.
+ *
+ * @return     a pointer to the atomic model.
+ */
+atomic *generator_new(double period);
 
 #endif /* GENERATOR_H */

@@ -26,12 +26,14 @@
 #include "job.h"
 #include "modeling.h"
 
-#define PORT_IN 0
-#define PORT_OUT 1
+#define PROCESSOR_IN 0
+#define PROCESSOR_OUT 1
 
 typedef struct st_processor_state {
   double clock, processing_time;
   job* current_job;
 } processor_state;
+
+atomic *processor_new(double period);
 
 #endif // PROCESSOR_H

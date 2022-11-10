@@ -59,6 +59,7 @@ typedef struct st_list_node
 
 typedef struct st_list
 {
+  unsigned int size;
   list_node *head;
   list_node *tail;
 } list;
@@ -97,5 +98,6 @@ list *list_new();
 void list_delete(list *l);
 bool list_is_empty(const list *l);
 void list_push_back(list *l, void *data);
+unsigned int list_size(const list *l);
 
 #endif
