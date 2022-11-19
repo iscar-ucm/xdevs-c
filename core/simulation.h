@@ -42,9 +42,12 @@ typedef struct st_coordinator {
   double tL, tN;
 } coordinator;
 
-coordinator* coordinator_new(const coupled* model);
+coordinator* coordinator_new(coupled* model);
 void coordinator_initialize(coordinator* sim);
-void coordinator_simulate(coordinator* sim, usinged long int nsteps);
+double coordinator_ta(const coordinator* sim);
+void coordinator_simulate(coordinator* sim, unsigned long nsteps);
 void coordinator_exit (coordinator* sim);
+
+void coordinator_propagate_output(coordinator* sim);
 
 #endif /* SIMULATION_H */

@@ -63,12 +63,12 @@ atomic *processor_new(double period) {
   processor_state *data = (processor_state *)malloc(sizeof(processor_state));
   data->current_job = NULL;
   processor->state.user_data = data;
-  processor->atomic_initialize = initialize;
+  processor->initialize = initialize;
   processor->ta = ta_default;
   processor->lambda = lambda;
   processor->deltint = deltint;
   processor->deltext = deltext;
   processor->deltcon = deltcon_default;
-  processor->atomic_exit = exit_default;
+  processor->exit = exit_default;
   return processor;
 }

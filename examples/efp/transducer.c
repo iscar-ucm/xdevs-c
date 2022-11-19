@@ -18,7 +18,7 @@
  *  - José Luis Risco Martín
  */
 #include "transducer.h"
-#include "devs.h"
+#include "../../core/devs.h"
 #include "job.h"
 
 void initialize(atomic *self) {
@@ -76,7 +76,7 @@ void deltext(atomic *self, const double e) {
 }
 
 atomic *transducer_new(double obs_time) {
-  atomic *transducer = (atomic *)malloc(sizeof(transducer));
+  atomic *transducer = (atomic *)malloc(sizeof(atomic));
   transducer->component_type = DEVS_ATOMIC;
   transducer_state *data = (transducer_state *)malloc(sizeof(transducer_state));
   data->clock = 0.0;

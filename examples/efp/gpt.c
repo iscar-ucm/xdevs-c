@@ -17,12 +17,12 @@
  * Contributors:
  *  - José Luis Risco Martín
  */
-#include "devs.h"
+#include "../../core/devs.h"
 #include "generator.h"
-#include "modeling.h"
+#include "../../core/modeling.h"
 #include "processor.h"
 #include "transducer.h"
-#include "simulation.h"
+#include "../../core/simulation.h"
 
 int main(int argc, char *argv[])
 {

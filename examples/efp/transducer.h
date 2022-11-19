@@ -17,31 +17,24 @@
  * Contributors:
  *  - José Luis Risco Martín
  */
-#ifndef GENERATOR_H
-#define GENERATOR_H
+#ifndef TRANSDUCER_H
+#define TRANSDUCER_H
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "job.h"
-#include "modeling.h"
+#include "../../core/modeling.h"
 
-#define GENERATOR_IN 0
-#define GENERATOR_OUT 1
+#define TRANSDUCER_ARRIVED 0
+#define TRANSDUCER_SOLVED 1
+#define TRANSDUCER_OUT 2
 
-typedef struct st_generator_state {
-  double period;
-  int job_next_id;
-} generator_state;
+typedef struct st_transducer_state {
+  double clock, total_ta, obs_time;
+  list *jobs_arrived, *jobs_solved;
+} transducer_state;
 
-/**
- * @brief      Creates a new generator atomic model.
- *
- * @details    Creates a new generator DEVS atomic model.
- *
- * @param      period Jobs generation period.
- *
- * @return     a pointer to the atomic model.
- */
-atomic *generator_new(double period);
+atomic *transducer_new(double obs_time);
 
-#endif /* GENERATOR_H */
+#endif /* TRANSDUCER_H */

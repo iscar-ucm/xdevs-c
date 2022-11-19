@@ -17,24 +17,19 @@
  * Contributors:
  *  - José Luis Risco Martín
  */
-#ifndef TRANSDUCER_H
-#define TRANSDUCER_H
+#ifndef JOB_H
+#define JOB_H
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-#include "job.h"
-#include "modeling.h"
 
-#define TRANSDUCER_ARRIVED 0
-#define TRANSDUCER_SOLVED 1
-#define TRANSDUCER_OUT 2
+typedef struct st_job {
+  int id;
+  double time;
+} job;
 
-typedef struct st_transducer_state {
-  double clock, total_ta, obs_time;
-  list *jobs_arrived, *jobs_solved;
-} transducer_state;
+job *new_job(int id, double time);
 
-atomic *transducer_new(double obs_time);
+/* This function clones a given job. */
+job *clone_job(const job* j);
 
-#endif /* TRANSDUCER_H */
+#endif /* JOB_H */

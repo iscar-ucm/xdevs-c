@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "job.h"
-#include "modeling.h"
+#include "../../core/modeling.h"
 
 #define PROCESSOR_IN 0
 #define PROCESSOR_OUT 1

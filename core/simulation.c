@@ -84,16 +84,16 @@ void simulator_lambda(simulator *sim)
   }
 }
 
-coordinator *coordinator_new(const coupled *model)
+coordinator *coordinator_new(coupled *model)
 {
   coordinator *c = (coordinator *)malloc(sizeof(coordinator));
   c->model = model;
   list_node *current_node = model->components.head;
   while (current_node != NULL)
   {
-    int component_type = (int)(current_node->data + 0);
-    bool is_coupled = DEVS_IS_COUPLED(component_type);
-    bool is_atomic = DEVS_IS_ATOMIC(component_type);
+    int* component_type = (int*)(current_node->data + 0);
+    bool is_coupled = DEVS_IS_COUPLED(*component_type);
+    bool is_atomic = DEVS_IS_ATOMIC(*component_type);
     if (is_coupled)
     {
       coordinator *current_sim = coordinator_new(current_node->data);
@@ -175,4 +175,8 @@ void coordinator_simulate(coordinator* sim, unsigned long int nsteps) {
     coordinator_clear(sim);
     steps++;
   }
+}
+
+void coordinator_propagate_output(coordinator* sim) {
+  // TODO: Implement this function.
 }

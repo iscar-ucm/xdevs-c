@@ -17,17 +17,31 @@
  * Contributors:
  *  - José Luis Risco Martín
  */
-#ifndef JOB_H
-#define JOB_H
+#ifndef GENERATOR_H
+#define GENERATOR_H
 
-typedef struct st_job {
-  int id;
-  double time;
-} job;
+#include <stdlib.h>
+#include <string.h>
+#include "job.h"
+#include "../../core/modeling.h"
 
-job *new_job(int id, double time);
+#define GENERATOR_IN 0
+#define GENERATOR_OUT 1
 
-/* This function clones a given job. */
-job *clone_job(const job* j);
+typedef struct st_generator_state {
+  double period;
+  int job_next_id;
+} generator_state;
 
-#endif /* JOB_H */
+/**
+ * @brief      Creates a new generator atomic model.
+ *
+ * @details    Creates a new generator DEVS atomic model.
+ *
+ * @param      period Jobs generation period.
+ *
+ * @return     a pointer to the atomic model.
+ */
+atomic *generator_new(double period);
+
+#endif /* GENERATOR_H */

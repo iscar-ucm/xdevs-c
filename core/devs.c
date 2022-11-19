@@ -125,7 +125,7 @@ bool list_is_empty(const list *l)
 
 void list_push_back(list *l, void *data)
 {
-  list_node *node = (list_node *)malloc(sizeof(node));
+  list_node *node = (list_node *)malloc(sizeof(list_node));
   node->data = data;
   node->next = NULL;
   if (list_is_empty(l))
