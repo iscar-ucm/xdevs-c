@@ -73,3 +73,11 @@ void add_coupling(coupled* self, void *component_from, unsigned int port_from, v
     list_push_back(&(self->ic), c);
   }
 }
+
+void coupling_propagate_values(coupling *c) {
+  atomic* from = (atomic*)c->component_from;
+  devs_message message_from = from->output;
+  atomic* to = (atomic*)c->component_to;
+  devs_message message_to = to->output;
+  // TODO: Continue here!!!
+}

@@ -21,18 +21,18 @@
 #include "../../core/devs.h"
 #include "job.h"
 
-void initialize(atomic *self) {
+void transducer_init(atomic *self) {
   transducer_state *s = self->state.user_data;
   hold_in(self, "active", s->obs_time);
   return;
 }
 
-void lambda(atomic *self) {
-  devs_message_push_back(&(self->output), TRANSDUCER_OUT, new_job(-1, -1));
+void transducer_lambda(atomic *self) {
+  devs_message_push_back(&(self->output), TRANSDUCER_OUT, job_new(-1, -1));
   return;
 }
 
-void deltint(atomic *self) {
+void transducer_deltint(atomic *self) {
   transducer_state *s = self->state.user_data;
   s->clock += self->state.sigma;
   if(phase_is(self, "active")) {
@@ -54,7 +54,7 @@ void deltint(atomic *self) {
   return;
 }
 
-void deltext(atomic *self, const double e) {
+void transducer_deltext(atomic *self, const double e) {
   resume(self, e);
   transducer_state *s = self->state.user_data;
   s->clock += e;
@@ -85,11 +85,11 @@ atomic *transducer_new(double obs_time) {
   data->jobs_arrived = list_new();
   data->jobs_solved = list_new();
   transducer->state.user_data = data;
-  transducer->initialize = initialize;
+  transducer->initialize = transducer_init;
   transducer->ta = ta_default;
-  transducer->lambda = lambda;
-  transducer->deltint = deltint;
-  transducer->deltext = deltext;
+  transducer->lambda = transducer_lambda;
+  transducer->deltint = transducer_deltint;
+  transducer->deltext = transducer_deltext;
   transducer->deltcon = deltcon_default;
   transducer->exit = exit_default;
   return transducer;

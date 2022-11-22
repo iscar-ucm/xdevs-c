@@ -20,6 +20,7 @@
 #ifndef SIMULATION_H
 #define SIMULATION_H
 
+#include <stdio.h>
 #include "modeling.h"
 
 typedef struct st_simulator {
@@ -32,7 +33,7 @@ void simulator_delete(simulator* sim);
 void simulator_initialize(simulator* sim, atomic* model);
 void simulator_exit (simulator* sim);
 double simulator_ta(const simulator* sim);
-void simulator_lambda(simulator* sim);
+void simulator_lambda(simulator* s, double t);
 void simulator_deltfcn(simulator* sim);
 // void simulator_clear(simulator *sim);
 
@@ -48,6 +49,8 @@ double coordinator_ta(const coordinator* sim);
 void coordinator_simulate(coordinator* sim, unsigned long nsteps);
 void coordinator_exit (coordinator* sim);
 
+void coordinator_propagate_input(coordinator* sim);
 void coordinator_propagate_output(coordinator* sim);
+void coordinator_clear(coordinator* sim);
 
 #endif /* SIMULATION_H */

@@ -19,26 +19,23 @@
  */
 #include "generator.h"
 
-void initialize(atomic* self) {
+void generator_init(atomic* self) {
   activate(self);
-  return;
 }
 
-void lambda(atomic* self) {
+void generator_lambda(atomic* self) {
   job* j = (job*)malloc(sizeof(job));
   generator_state* s = self->state.user_data;
   j->id = s->job_next_id;
   devs_message_push_back(&(self->output), GENERATOR_OUT, j);
-  return;
 }
 
-void deltint(atomic* self) {
+void generator_deltint(atomic* self) {
   generator_state* s = self->state.user_data;
   s->job_next_id++;
-  return;
 }
 
-void deltext(atomic *self, const double e) {
+void generator_deltext(atomic *self, const double e) {
   passivate(self);
 }
 
@@ -50,11 +47,11 @@ atomic* generator_new(double period) {
   data->period = period;
   data->job_next_id = 1;
   generator->state.user_data = data;
-  generator->initialize = initialize;
+  generator->initialize = generator_init;
   generator->ta = ta_default;
-  generator->lambda = lambda;
-  generator->deltint = deltint;
-  generator->deltext = deltext;
+  generator->lambda = generator_lambda;
+  generator->deltint = generator_deltint;
+  generator->deltext = generator_deltext;
   generator->deltcon = deltcon_default;
   generator->exit = exit_default;
   return generator;

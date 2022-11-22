@@ -24,24 +24,26 @@
 
 #define DEVS_ATOMIC 1
 #define DEVS_COUPLED 2
-#define DEVS_IS_ATOMIC(component_type) (component_type==DEVS_ATOMIC) ? true : false;
-#define DEVS_IS_COUPLED(component_type) (component_type==DEVS_COUPLED) ? true : false;
+#define DEVS_IS_ATOMIC(component_type) (component_type == DEVS_ATOMIC) ? true : false;
+#define DEVS_IS_COUPLED(component_type) (component_type == DEVS_COUPLED) ? true : false;
 
-typedef struct st_atomic {
+typedef struct st_atomic
+{
   int component_type;
   devs_message input;
   devs_message output;
   devs_state state;
-  void (*initialize) (struct st_atomic* self);
-  double (*ta) (const struct st_atomic* self);
-  void (*lambda) (struct st_atomic* self);
-  void (*deltint) (struct st_atomic* self);
-  void (*deltext) (struct st_atomic* self, const double e);
-  void (*deltcon) (struct st_atomic* self, const double e);
-  void (*exit) (const struct st_atomic* self);
+  void (*initialize)(struct st_atomic *self);
+  double (*ta)(const struct st_atomic *self);
+  void (*lambda)(struct st_atomic *self);
+  void (*deltint)(struct st_atomic *self);
+  void (*deltext)(struct st_atomic *self, const double e);
+  void (*deltcon)(struct st_atomic *self, const double e);
+  void (*exit)(const struct st_atomic *self);
 } atomic;
 
-typedef struct st_coupled {
+typedef struct st_coupled
+{
   int component_type;
   list components;
   list ic;
@@ -49,24 +51,25 @@ typedef struct st_coupled {
   list eoc;
 } coupled;
 
-typedef struct st_coupling {
-  void* component_from;
+typedef struct st_coupling
+{
+  void *component_from;
   unsigned int port_from;
-  void* component_to;
+  void *component_to;
   unsigned int port_to;
 } coupling;
 
-double ta_default(const atomic* self);
+double ta_default(const atomic *self);
 void deltext_default(atomic *self, const double e);
 void deltcon_default(atomic *self, const double e);
 void exit_default(const atomic *self);
-void resume(atomic* self, const double e);
-void activate(atomic* self);
-void passivate(atomic* self);
+void resume(atomic *self, const double e);
+void activate(atomic *self);
+void passivate(atomic *self);
 void hold_in(atomic *self, const char *phase, const double sigma);
 bool phase_is(atomic *self, const char *phase);
 
-void add_coupling(coupled *self, void *component_from, unsigned int port_from,
-                  void *component_to, unsigned int port_to);
+void add_coupling(coupled *self, void *component_from, unsigned int port_from, void *component_to, unsigned int port_to);
+void coupling_propagate_values(coupling *c);
 
 #endif /* MODELING_H */

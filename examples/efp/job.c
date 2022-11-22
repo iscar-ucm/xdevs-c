@@ -20,16 +20,10 @@
 #include "job.h"
 #include <stdlib.h>
 
-job *new_job(int id, double time) {
+job *job_new(int id, double time) {
   job* j = (job*)malloc(sizeof(job));
   j->id = id;
   j->time = time;
   return j;
 }
 
-/* This function clones a given job. */
-job *clone_job(const job* j) {
-  job* j2 = (job*)malloc(sizeof(job));
-  memcpy(j2, j, sizeof(job));
-  return j2;
-}

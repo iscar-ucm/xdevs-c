@@ -19,17 +19,16 @@
  */
 #include "processor.h"
 
-void lambda(atomic *self) {
+void processor_lambda(atomic *self) {
   processor_state *s = self->state.user_data;
-  devs_message_push_back(&(self->output), PROCESSOR_OUT, clone_job(s->current_job));
+  devs_message_push_back(&(self->output), PROCESSOR_OUT, s->current_job);
   return;
 }
 
-void deltint(atomic *self) {
+void processor_deltint(atomic *self) {
   processor_state *s = self->state.user_data;
-  // Free current job:
+  // "Free" current job:
   if (s->current_job != NULL) {
-    free(s->current_job);
     s->current_job = NULL;
   }
   // Update clock:
@@ -39,7 +38,7 @@ void deltint(atomic *self) {
   return;
 }
 
-void deltext(atomic *self, const double e) {
+void processor_deltext(atomic *self, const double e) {
   resume(self, e);
   processor_state *s = self->state.user_data;
   // Update clock:
@@ -52,7 +51,7 @@ void deltext(atomic *self, const double e) {
   }    
 }
 
-void initialize(atomic *self) {
+void processor_init(atomic *self) {
   activate(self);
   return;
 }
@@ -63,11 +62,11 @@ atomic *processor_new(double period) {
   processor_state *data = (processor_state *)malloc(sizeof(processor_state));
   data->current_job = NULL;
   processor->state.user_data = data;
-  processor->initialize = initialize;
+  processor->initialize = processor_init;
   processor->ta = ta_default;
-  processor->lambda = lambda;
-  processor->deltint = deltint;
-  processor->deltext = deltext;
+  processor->lambda = processor_lambda;
+  processor->deltint = processor_deltint;
+  processor->deltext = processor_deltext;
   processor->deltcon = deltcon_default;
   processor->exit = exit_default;
   return processor;
