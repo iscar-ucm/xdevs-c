@@ -39,7 +39,6 @@ devs_message *devs_message_push_back(devs_message *msg, int port_id, void *value
   devs_node *node = (devs_node *)malloc(sizeof(devs_node));
   node->port_id = port_id;
   node->value = value;
-  node->prev = NULL;
   node->next = NULL;
   if (devs_message_is_empty(msg))
   {
@@ -47,10 +46,21 @@ devs_message *devs_message_push_back(devs_message *msg, int port_id, void *value
   }
   else
   {
-    node->prev = msg->tail;
     msg->tail->next = node;
     msg->tail = node;
   }
+  return msg;
+}
+
+devs_message *devs_message_clear(devs_message *msg) {
+  devs_node *node = msg->head;
+  while (node != NULL) {
+    devs_node *next = node->next;
+    free(node->value);
+    free(node);
+    node = next;
+  }
+  msg->head = msg->tail = NULL;
   return msg;
 }
 
@@ -130,17 +140,31 @@ void list_push_back(list *l, void *data)
   node->next = NULL;
   if (list_is_empty(l))
   {
-    l->head = node;
-    node->prev = NULL;
-    node->next = NULL;
+    l->head = l->tail = node;
   }
   else
   {
     l->tail->next = node;
-    node->prev = l->tail;
+    l->tail = node;
   }
-  l->tail = node;
   l->size++;
 }
 
 unsigned int list_size(const list *l) { return l->size; }
+
+list* list_clear(list *l) {
+  if (!list_is_empty(l))
+  {
+    list_node *first = l->head;
+    while (first != NULL)
+    {
+      list_node *next = first->next;
+      free(first->data);
+      free(first);
+      first = next;
+    }
+  }
+  l->head = l->tail = NULL;
+  l->size = 0;
+  return l;
+}

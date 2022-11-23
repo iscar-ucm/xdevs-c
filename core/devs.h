@@ -40,7 +40,6 @@ typedef struct st_devs_node
 {
   unsigned int port_id;
   void *value;
-  struct st_devs_node *prev;
   struct st_devs_node *next;
 } devs_node;
 
@@ -53,7 +52,6 @@ typedef struct st_devs_message
 typedef struct st_list_node
 {
   void *data;
-  struct st_list_node *prev;
   struct st_list_node *next;
 } list_node;
 
@@ -80,6 +78,8 @@ bool devs_message_is_empty(const devs_message *msg);
 /// @return The new DEVS message.
 devs_message *devs_message_push_back(devs_message *msg, int port_id, void *value);
 
+devs_message *devs_message_clear(devs_message *msg);
+
 bool devs_port_is_empty(const devs_message *msg, unsigned int port_id);
 
 /// @brief From a given DEVS message, returns all the values/events associated to a given port.
@@ -99,5 +99,6 @@ void list_delete(list *l);
 bool list_is_empty(const list *l);
 void list_push_back(list *l, void *data);
 unsigned int list_size(const list *l);
+list* list_clear(list *l);
 
 #endif

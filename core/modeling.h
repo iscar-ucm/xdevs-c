@@ -45,6 +45,8 @@ typedef struct st_atomic
 typedef struct st_coupled
 {
   int component_type;
+  devs_message input;
+  devs_message output;
   list components;
   list ic;
   list eic;
@@ -69,6 +71,7 @@ void passivate(atomic *self);
 void hold_in(atomic *self, const char *phase, const double sigma);
 bool phase_is(atomic *self, const char *phase);
 
+coupled* coupled_new();
 void add_coupling(coupled *self, void *component_from, unsigned int port_from, void *component_to, unsigned int port_to);
 void coupling_propagate_values(coupling *c);
 

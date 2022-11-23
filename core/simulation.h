@@ -24,33 +24,34 @@
 #include "modeling.h"
 
 typedef struct st_simulator {
-  atomic* model;
+  atomic* m;
   double tL, tN;
 } simulator;
 
-simulator* simulator_new(atomic* model);
-void simulator_delete(simulator* sim);
-void simulator_initialize(simulator* sim, atomic* model);
-void simulator_exit (simulator* sim);
-double simulator_ta(const simulator* sim);
+simulator* simulator_new(atomic* m);
+void simulator_delete(simulator* s);
+void simulator_initialize(simulator* s);
+void simulator_exit (simulator* s);
+double simulator_ta(const simulator* s);
 void simulator_lambda(simulator* s, double t);
-void simulator_deltfcn(simulator* sim);
-// void simulator_clear(simulator *sim);
+void simulator_deltfcn(simulator* s, double t);
+void simulator_clear(simulator *s);
 
 typedef struct st_coordinator {
-  coupled* model;
+  coupled* m;
   list simulators;
   double tL, tN;
 } coordinator;
 
-coordinator* coordinator_new(coupled* model);
-void coordinator_initialize(coordinator* sim);
-double coordinator_ta(const coordinator* sim);
-void coordinator_simulate(coordinator* sim, unsigned long nsteps);
-void coordinator_exit (coordinator* sim);
+coordinator* coordinator_new(coupled* m);
+void coordinator_delete(coordinator* c);
+void coordinator_initialize(coordinator* c);
+double coordinator_ta(const coordinator* c);
+void coordinator_simulate(coordinator* c, unsigned long nsteps);
+void coordinator_exit (coordinator* c);
 
-void coordinator_propagate_input(coordinator* sim);
-void coordinator_propagate_output(coordinator* sim);
-void coordinator_clear(coordinator* sim);
+void coordinator_propagate_input(coordinator* c);
+void coordinator_propagate_output(coordinator* c);
+void coordinator_clear(coordinator* c);
 
 #endif /* SIMULATION_H */

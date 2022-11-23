@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
   coordinator_initialize(c);
   coordinator_simulate(c, 20);
   coordinator_exit(c);
+  coordinator_delete(c);
 
   return 0;
 }

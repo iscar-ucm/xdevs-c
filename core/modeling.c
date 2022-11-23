@@ -38,25 +38,47 @@ void resume(atomic* self, const double e) {
 
 void activate(atomic* self) {
   self->state.sigma = 0.0;
-  strncpy(self->state.phase, PHASE_ACTIVE, strlen(PHASE_ACTIVE));
+  strncpy(self->state.phase, PHASE_ACTIVE, strlen(PHASE_ACTIVE)+1);
   return;
 }
 
 void passivate(atomic* self) {
   self->state.sigma = INFINITY;
-  strncpy(self->state.phase, PHASE_PASSIVE, strlen(PHASE_PASSIVE));
+  strncpy(self->state.phase, PHASE_PASSIVE, strlen(PHASE_PASSIVE)+1);
   return;
 }
 
 void hold_in(atomic* self, const char* phase, const double sigma) {
   self->state.sigma = sigma;
-  strncpy(self->state.phase, phase, strlen(phase));
+  strncpy(self->state.phase, phase, strlen(phase)+1);
   return;
 }
 
 bool phase_is(atomic *self, const char *phase) {
   int res = strcmp(self->state.phase, phase);
   return res == 0;
+}
+
+coupled* coupled_new() {
+  coupled *m = (coupled*) malloc(sizeof(coupled));
+  m->component_type = DEVS_COUPLED;
+  m->input.head = NULL;
+  m->input.tail = NULL;
+  m->output.head = NULL;
+  m->output.tail = NULL;
+  m->components.size = 0;
+  m->components.head = NULL;
+  m->components.tail = NULL;
+  m->ic.size = 0;
+  m->ic.head = NULL;
+  m->ic.tail = NULL;
+  m->eic.size = 0;
+  m->eic.head = NULL;
+  m->eic.tail = NULL;
+  m->eoc.size = 0;
+  m->eoc.head = NULL;
+  m->eoc.tail = NULL;
+  return m;
 }
 
 void add_coupling(coupled* self, void *component_from, unsigned int port_from, void *component_to, unsigned int port_to) {
@@ -75,9 +97,17 @@ void add_coupling(coupled* self, void *component_from, unsigned int port_from, v
 }
 
 void coupling_propagate_values(coupling *c) {
-  atomic* from = (atomic*)c->component_from;
-  devs_message message_from = from->output;
-  atomic* to = (atomic*)c->component_to;
-  devs_message message_to = to->output;
-  // TODO: Continue here!!!
+  atomic* a_from = (atomic*)c->component_from;
+  int p_from = c->port_from;
+  devs_message message_from = a_from->output;
+  atomic* a_to = (atomic*)c->component_to;
+  int p_to = c->port_to;
+  devs_message message_to = a_to->output;
+  devs_node* n = message_from.head;
+  while(n!=NULL) {
+    if (n->port_id == p_from) {
+      devs_message_push_back(&(message_to), p_to, n->value);
+    }
+    n = n->next;
+  }
 }
