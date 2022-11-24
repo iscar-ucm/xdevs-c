@@ -27,6 +27,18 @@ void transducer_init(atomic *self) {
   return;
 }
 
+void transducer_exit(atomic *self) {
+  transducer_state *s = self->state.user_data;
+  list_node* n = s->jobs_arrived->head;
+  while(n!=NULL) {
+    free(n->data);
+    n = n->next;
+  }
+  list_delete(s->jobs_arrived);
+  list_delete(s->jobs_solved);
+  return;
+}
+
 void transducer_lambda(atomic *self) {
   devs_message_push_back(&(self->output), TRANSDUCER_OUT, job_new(-1, -1));
   return;
@@ -41,11 +53,11 @@ void transducer_deltint(atomic *self) {
       avg_ta_time = s->total_ta / list_size(s->jobs_solved);
       throughput = (s->clock > 0) ? list_size(s->jobs_solved)/s->clock : 0.0;      
     }
-    printf("End time: %f", s->clock);
-    printf("Jobs arrived: %d", list_size(s->jobs_arrived));
-    printf("Jobs solved: %d", list_size(s->jobs_solved));
-    printf("Average TA = %f", avg_ta_time);
-    printf("Throughput = %f", throughput);
+    printf("End time: %f\n", s->clock);
+    printf("Jobs arrived: %d\n", list_size(s->jobs_arrived));
+    printf("Jobs solved: %d\n", list_size(s->jobs_solved));
+    printf("Average TA = %f\n", avg_ta_time);
+    printf("Throughput = %f\n", throughput);
     hold_in(self, "done", 0.0);
   }
   else {
@@ -62,13 +74,13 @@ void transducer_deltext(atomic *self, const double e) {
   if (phase_is(self, "active")) {
     job* j;
     if ((j = devs_port_get_value(&(self->input), TRANSDUCER_ARRIVED))!=NULL) {
-      printf("Start job %d, @ t = %f",  + j->id, s->clock);
+      printf("Start job %d, @ t = %f\n",  + j->id, s->clock);
       j->time = s->clock;
       list_push_back(s->jobs_arrived, j);
     }
     if ((j = devs_port_get_value(&(self->input), TRANSDUCER_SOLVED))!=NULL) {
       s->total_ta += (s->clock - j->time);
-      printf("Finish job %d @ t = %f", j->id, s->clock);
+      printf("Finish job %d @ t = %f\n", j->id, s->clock);
       j->time = s->clock;
       list_push_back(s->jobs_solved, j);
     }
@@ -91,6 +103,6 @@ atomic *transducer_new(double obs_time) {
   transducer->deltint = transducer_deltint;
   transducer->deltext = transducer_deltext;
   transducer->deltcon = deltcon_default;
-  transducer->exit = exit_default;
+  transducer->exit = transducer_exit;
   return transducer;
 }

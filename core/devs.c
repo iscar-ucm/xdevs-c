@@ -56,7 +56,6 @@ devs_message *devs_message_clear(devs_message *msg) {
   devs_node *node = msg->head;
   while (node != NULL) {
     devs_node *next = node->next;
-    free(node->value);
     free(node);
     node = next;
   }
@@ -159,7 +158,6 @@ list* list_clear(list *l) {
     while (first != NULL)
     {
       list_node *next = first->next;
-      free(first->data);
       free(first);
       first = next;
     }

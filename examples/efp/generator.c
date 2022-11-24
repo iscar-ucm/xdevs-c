@@ -20,7 +20,8 @@
 #include "generator.h"
 
 void generator_init(atomic* self) {
-  activate(self);
+  generator_state* s = (generator_state*)self->state.user_data;
+  hold_in(self, "active", s->period);
 }
 
 void generator_lambda(atomic* self) {
@@ -33,9 +34,11 @@ void generator_lambda(atomic* self) {
 void generator_deltint(atomic* self) {
   generator_state* s = self->state.user_data;
   s->job_next_id++;
+  hold_in(self, "active", s->period);
 }
 
 void generator_deltext(atomic *self, const double e) {
+  resume(self, e);
   passivate(self);
 }
 

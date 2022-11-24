@@ -73,6 +73,5 @@ bool phase_is(atomic *self, const char *phase);
 
 coupled* coupled_new();
 void add_coupling(coupled *self, void *component_from, unsigned int port_from, void *component_to, unsigned int port_to);
-void coupling_propagate_values(coupling *c);
 
 #endif /* MODELING_H */

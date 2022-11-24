@@ -52,6 +52,9 @@ void processor_deltext(atomic *self, const double e) {
 }
 
 void processor_init(atomic *self) {
+  processor_state *s = self->state.user_data;
+  s->clock = 0.0;
+  s->current_job = NULL;
   passivate(self);
 }
 
@@ -59,6 +62,8 @@ atomic *processor_new(double period) {
   atomic *processor = (atomic *)malloc(sizeof(atomic));
   processor->component_type = DEVS_ATOMIC;
   processor_state *data = (processor_state *)malloc(sizeof(processor_state));
+  data->clock = 0.0;
+  data->processing_time = period;
   data->current_job = NULL;
   processor->state.user_data = data;
   processor->initialize = processor_init;

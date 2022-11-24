@@ -150,6 +150,7 @@ void coordinator_exit(coordinator *c)
   {
     simulator *s = n->data;
     simulator_exit(s);
+    n = n->next;
   }
 }
 
@@ -214,7 +215,17 @@ void coordinator_propagate_input(coordinator *c)
   while (n != NULL)
   {
     coupling *link = n->data;
-    coupling_propagate_values(link); // TODO: This is incorrect, we must develop one propagation function for each coupling type (IC, EIC, EOC)
+    atomic *a_from = (atomic *)link->component_from;
+    atomic *a_to = (atomic *)link->component_to;
+    devs_node *msg_node = a_from->input.head;
+    while (msg_node != NULL)
+    {
+      if (msg_node->port_id == link->port_from)
+      {
+        devs_message_push_back(&(a_to->input), link->port_to, msg_node->value);
+      }
+      msg_node = msg_node->next;
+    }
     n = n->next;
   }
 }
@@ -242,7 +253,17 @@ void coordinator_propagate_output(coordinator *c)
   while (n != NULL)
   {
     coupling *link = n->data;
-    coupling_propagate_values(link); // TODO: This is incorrect, we must develop one propagation function for each coupling type (IC, EIC, EOC)
+    atomic *a_from = (atomic *)link->component_from;
+    atomic *a_to = (atomic *)link->component_to;
+    devs_node *msg_node = a_from->output.head;
+    while (msg_node != NULL)
+    {
+      if (msg_node->port_id == link->port_from)
+      {
+        devs_message_push_back(&(a_to->output), link->port_to, msg_node->value);
+      }
+      msg_node = msg_node->next;
+    }
     n = n->next;
   }
 }

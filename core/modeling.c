@@ -95,15 +95,3 @@ void add_coupling(coupled* self, void *component_from, unsigned int port_from, v
     list_push_back(&(self->ic), c);
   }
 }
-
-void coupling_propagate_values(coupling *c) {
-  atomic* a_from = (atomic*)c->component_from;
-  atomic* a_to = (atomic*)c->component_to;
-  devs_node* n = a_from->output.head;
-  while(n!=NULL) {
-    if (n->port_id == c->port_from) {
-      devs_message_push_back(&(a_to->input), c->port_to, n->value);
-    }
-    n = n->next;
-  }
-}
