@@ -52,8 +52,7 @@ void processor_deltext(atomic *self, const double e) {
 }
 
 void processor_init(atomic *self) {
-  activate(self);
-  return;
+  passivate(self);
 }
 
 atomic *processor_new(double period) {

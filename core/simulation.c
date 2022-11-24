@@ -82,7 +82,8 @@ void simulator_lambda(simulator *s, double t)
   }
 }
 
-void simulator_clear(simulator *s) {
+void simulator_clear(simulator *s)
+{
   devs_message_clear(&(s->m->input));
   devs_message_clear(&(s->m->output));
 }
@@ -125,6 +126,7 @@ void coordinator_delete(coordinator *c)
   list_clear(&(c->m->ic));
   list_clear(&(c->m->eic));
   list_clear(&(c->m->eoc));
+  free(c->m);
   free(c);
   return;
 }
@@ -191,7 +193,6 @@ void coordinator_deltfcn(coordinator *c, double t)
   c->tN = c->tL + coordinator_ta(c);
 }
 
-
 void coordinator_simulate(coordinator *c, unsigned long int nsteps)
 {
   printf("Starting simulation ...\n");
@@ -213,7 +214,7 @@ void coordinator_propagate_input(coordinator *c)
   while (n != NULL)
   {
     coupling *link = n->data;
-    coupling_propagate_values(link);
+    coupling_propagate_values(link); // TODO: This is incorrect, we must develop one propagation function for each coupling type (IC, EIC, EOC)
     n = n->next;
   }
 }
@@ -224,14 +225,24 @@ void coordinator_propagate_output(coordinator *c)
   while (n != NULL)
   {
     coupling *link = n->data;
-    coupling_propagate_values(link);
+    atomic *a_from = (atomic *)link->component_from;
+    atomic *a_to = (atomic *)link->component_to;
+    devs_node *msg_node = a_from->output.head;
+    while (msg_node != NULL)
+    {
+      if (msg_node->port_id == link->port_from)
+      {
+        devs_message_push_back(&(a_to->input), link->port_to, msg_node->value);
+      }
+      msg_node = msg_node->next;
+    }
     n = n->next;
   }
   n = c->m->eoc.head;
   while (n != NULL)
   {
     coupling *link = n->data;
-    coupling_propagate_values(link);
+    coupling_propagate_values(link); // TODO: This is incorrect, we must develop one propagation function for each coupling type (IC, EIC, EOC)
     n = n->next;
   }
 }

@@ -98,15 +98,11 @@ void add_coupling(coupled* self, void *component_from, unsigned int port_from, v
 
 void coupling_propagate_values(coupling *c) {
   atomic* a_from = (atomic*)c->component_from;
-  int p_from = c->port_from;
-  devs_message message_from = a_from->output;
   atomic* a_to = (atomic*)c->component_to;
-  int p_to = c->port_to;
-  devs_message message_to = a_to->output;
-  devs_node* n = message_from.head;
+  devs_node* n = a_from->output.head;
   while(n!=NULL) {
-    if (n->port_id == p_from) {
-      devs_message_push_back(&(message_to), p_to, n->value);
+    if (n->port_id == c->port_from) {
+      devs_message_push_back(&(a_to->input), c->port_to, n->value);
     }
     n = n->next;
   }
