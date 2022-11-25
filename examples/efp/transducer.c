@@ -88,8 +88,7 @@ void transducer_deltext(atomic *self, const double e) {
 }
 
 atomic *transducer_new(double obs_time) {
-  atomic *transducer = (atomic *)malloc(sizeof(atomic));
-  transducer->component_type = DEVS_ATOMIC;
+  atomic *transducer = atomic_new();
   transducer_state *data = (transducer_state *)malloc(sizeof(transducer_state));
   data->clock = 0.0;
   data->total_ta = 0.0;

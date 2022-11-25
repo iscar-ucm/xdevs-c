@@ -21,17 +21,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-devs_message *devs_message_new()
-{
-  devs_message *list = (devs_message *)malloc(sizeof(devs_message));
-  list->head = NULL;
-  list->tail = NULL;
-  return list;
-}
-
 bool devs_message_is_empty(const devs_message *msg)
 {
-  return (msg == NULL) || (msg->head == NULL);
+  return (msg->size == 0);
+}
+
+unsigned int devs_message_size(const devs_message *msg)
+{
+  return msg->size;
 }
 
 devs_message *devs_message_push_back(devs_message *msg, int port_id, void *value)
@@ -49,6 +46,7 @@ devs_message *devs_message_push_back(devs_message *msg, int port_id, void *value
     msg->tail->next = node;
     msg->tail = node;
   }
+  msg->size++;
   return msg;
 }
 
@@ -60,6 +58,7 @@ devs_message *devs_message_clear(devs_message *msg) {
     node = next;
   }
   msg->head = msg->tail = NULL;
+  msg->size = 0;
   return msg;
 }
 

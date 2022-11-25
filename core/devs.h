@@ -45,6 +45,7 @@ typedef struct st_devs_node
 
 typedef struct st_devs_message
 {
+  unsigned int size;
   struct st_devs_node *head;
   struct st_devs_node *tail;
 } devs_message;
@@ -62,14 +63,15 @@ typedef struct st_list
   list_node *tail;
 } list;
 
-/// @brief Generates a new DEVS message.
-/// @return A pointer to the new message.
-devs_message *devs_message_new();
-
 /// @brief Checks if a DEVS message is empty.
 /// @param msg DEVS message to check.
 /// @return A boolean value indicating if the message is empty.
 bool devs_message_is_empty(const devs_message *msg);
+
+/// @brief Returns the size of a DEVS message.
+/// @param msg DEVS message to check.
+/// @return The size of the message.
+unsigned int devs_message_size(const devs_message *msg);
 
 /// @brief Inserts a new event in a DEVS message.
 /// @param msg DEVS message to insert the event.

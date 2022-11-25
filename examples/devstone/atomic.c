@@ -50,16 +50,12 @@ void dsatomic_deltint(atomic *self)
 
 void dsatomic_deltext(atomic *self, const double e)
 {
-  NUM_DELT_EXTS++;
   resume(self, e);
+  NUM_DELT_EXTS++;
   dsatomic_state *s = self->state.user_data;
   if (s->ext_delay_time > 0)
     dhrystone(s->ext_delay_time);
-  if (!devs_message_is_empty(&(self->input)))
-  {
-    // TODO: Continue here. Add this function, as well as the Makefile.
-    NUM_EVENT_EXT += devs_message_size(&(self->input));
-  }
+  NUM_EVENT_EXT += devs_message_size(&(self->input));
   hold_in(self, "active", s->preparation_time);
 }
 
@@ -72,8 +68,7 @@ void dsatomic_exit(atomic *self)
 
 atomic *dsatomic_new(double preparation_time, double int_delay_time, double ext_delay_time)
 {
-  atomic *dsatomic = (atomic *)malloc(sizeof(atomic));
-  dsatomic->component_type = DEVS_ATOMIC;
+  atomic *dsatomic = atomic_new();
   dsatomic_state *data = (dsatomic_state *)malloc(sizeof(dsatomic_state));
   data->preparation_time = preparation_time;
   data->int_delay_time = int_delay_time;

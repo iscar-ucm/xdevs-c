@@ -49,8 +49,7 @@ void generator_deltext(atomic *self, const double e)
 
 atomic *generator_new(double period)
 {
-  atomic *generator = (atomic *)malloc(sizeof(atomic));
-  generator->component_type = DEVS_ATOMIC;
+  atomic *generator = atomic_new();
   generator_state *data = (generator_state *)malloc(sizeof(generator_state));
   data->period = period;
   generator->state.user_data = data;

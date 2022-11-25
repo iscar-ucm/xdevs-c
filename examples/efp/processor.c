@@ -59,8 +59,7 @@ void processor_init(atomic *self) {
 }
 
 atomic *processor_new(double period) {
-  atomic *processor = (atomic *)malloc(sizeof(atomic));
-  processor->component_type = DEVS_ATOMIC;
+  atomic *processor = atomic_new();
   processor_state *data = (processor_state *)malloc(sizeof(processor_state));
   data->clock = 0.0;
   data->processing_time = period;
