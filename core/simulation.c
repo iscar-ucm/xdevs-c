@@ -23,6 +23,7 @@
 simulator *simulator_new(atomic *m)
 {
   simulator *s = (simulator *)malloc(sizeof(simulator));
+  s->simulator_type = DEVS_SIMULATOR;
   s->m = m;
   return s;
 }
@@ -91,6 +92,7 @@ void simulator_clear(simulator *s)
 coordinator *coordinator_new(coupled *m)
 {
   coordinator *c = (coordinator *)malloc(sizeof(coordinator));
+  c->simulator_type = DEVS_COORDINATOR;
   c->m = m;
   list_node *n = m->components.head;
   while (n != NULL)
@@ -119,7 +121,17 @@ void coordinator_delete(coordinator *c)
   while (n != NULL)
   {
     list_node *next = n->next;
-    simulator_delete(n->data);
+    int *simulator_type = (int *)(n->data + 0);
+    bool is_simulator = DEVS_IS_SIMULATOR(*simulator_type);
+    bool is_coordinator = DEVS_IS_COORDINADOR(*simulator_type);
+    if (is_simulator)
+    {
+      simulator_delete(n->data);
+    }
+    else if (is_coordinator)
+    {
+      coordinator_delete(n->data);
+    }
     n = next;
   }
   list_clear(&(c->m->components));
@@ -136,11 +148,23 @@ void coordinator_initialize(coordinator *c)
   list_node *n = c->simulators.head;
   while (n != NULL)
   {
-    simulator_initialize(n->data);
+    int *simulator_type = (int *)(n->data + 0);
+    bool is_simulator = DEVS_IS_SIMULATOR(*simulator_type);
+    bool is_coordinator = DEVS_IS_COORDINADOR(*simulator_type);
+    if (is_simulator)
+    {
+      simulator_initialize(n->data);
+    }
+    else if (is_coordinator)
+    {
+      coordinator_initialize(n->data);
+    }
     n = n->next;
   }
   c->tL = 0.0;
-  c->tN = c->tL + coordinator_ta(c);
+  double min_sigma = coordinator_ta(c, 0);
+  c->tN = c->tL + min_sigma;
+  return;
 }
 
 void coordinator_exit(coordinator *c)
@@ -148,24 +172,34 @@ void coordinator_exit(coordinator *c)
   list_node *n = c->simulators.head;
   while (n != NULL)
   {
-    simulator *s = n->data;
-    simulator_exit(s);
+    int *simulator_type = (int *)(n->data + 0);
+    bool is_simulator = DEVS_IS_SIMULATOR(*simulator_type);
+    bool is_coordinator = DEVS_IS_COORDINADOR(*simulator_type);
+    if (is_simulator)
+    {
+      simulator_exit(n->data);
+    }
+    else if (is_coordinator)
+    {
+      coordinator_exit(n->data);
+    }
     n = n->next;
   }
 }
 
-double coordinator_ta(const coordinator *c)
+double coordinator_ta(const coordinator *c, double t)
 {
   double tn = INFINITY;
   list_node *n = c->simulators.head;
   while (n != NULL)
   {
-    simulator *s = n->data;
-    if (s->tN < tn)
-      tn = s->tN;
+    bool is_simulator = DEVS_IS_SIMULATOR(*((int *)(n->data + 0)));
+    double sub_tn = (is_simulator) ? ((simulator*)(n->data))->tN : ((coordinator*)(n->data))->tN;
+    if (sub_tn < tn)
+      tn = sub_tn;
     n = n->next;
   }
-  return tn;
+  return tn - t;
 }
 
 void coordinator_lambda(coordinator *c, double t)
@@ -173,8 +207,17 @@ void coordinator_lambda(coordinator *c, double t)
   list_node *n = c->simulators.head;
   while (n != NULL)
   {
-    simulator *s = n->data;
-    simulator_lambda(s, t);
+    int *simulator_type = (int *)(n->data + 0);
+    bool is_simulator = DEVS_IS_SIMULATOR(*simulator_type);
+    bool is_coordinator = DEVS_IS_COORDINADOR(*simulator_type);
+    if (is_simulator)
+    {
+      simulator_lambda(n->data, t);
+    }
+    else if (is_coordinator)
+    {
+      coordinator_lambda(n->data, t);
+    }
     n = n->next;
   }
   coordinator_propagate_output(c);
@@ -186,12 +229,21 @@ void coordinator_deltfcn(coordinator *c, double t)
   list_node *n = c->simulators.head;
   while (n != NULL)
   {
-    simulator *s = n->data;
-    simulator_deltfcn(s, t);
+    int *simulator_type = (int *)(n->data + 0);
+    bool is_simulator = DEVS_IS_SIMULATOR(*simulator_type);
+    bool is_coordinator = DEVS_IS_COORDINADOR(*simulator_type);
+    if (is_simulator)
+    {
+      simulator_deltfcn(n->data, t);
+    }
+    else if (is_coordinator)
+    {
+      coordinator_deltfcn(n->data, t);
+    }
     n = n->next;
   }
   c->tL = t;
-  c->tN = c->tL + coordinator_ta(c);
+  c->tN = c->tL + coordinator_ta(c, t);
 }
 
 void coordinator_simulate(coordinator *c, unsigned long int nsteps)
@@ -215,14 +267,14 @@ void coordinator_propagate_input(coordinator *c)
   while (n != NULL)
   {
     coupling *link = n->data;
-    atomic *a_from = (atomic *)link->component_from;
-    atomic *a_to = (atomic *)link->component_to;
-    devs_node *msg_node = a_from->input.head;
+    devs_node *msg_node = ((coupled *)(link->component_from))->input.head;
+    bool is_atomic_to = DEVS_IS_ATOMIC(*((int *)(link->component_to + 0)));
+    devs_message *ports_addr = (is_atomic_to) ? &(((atomic *)(link->component_to))->input) : &(((coupled *)(link->component_to))->input);
     while (msg_node != NULL)
     {
       if (msg_node->port_id == link->port_from)
       {
-        devs_message_push_back(&(a_to->input), link->port_to, msg_node->value);
+        devs_message_push_back(ports_addr, link->port_to, msg_node->value);
       }
       msg_node = msg_node->next;
     }
@@ -236,14 +288,15 @@ void coordinator_propagate_output(coordinator *c)
   while (n != NULL)
   {
     coupling *link = n->data;
-    atomic *a_from = (atomic *)link->component_from;
-    atomic *a_to = (atomic *)link->component_to;
-    devs_node *msg_node = a_from->output.head;
+    bool is_atomic_from = DEVS_IS_ATOMIC(*((int *)(link->component_from + 0)));
+    bool is_atomic_to = DEVS_IS_ATOMIC(*((int *)(link->component_to + 0)));
+    devs_node *msg_node = (is_atomic_from) ? ((atomic *)(link->component_from))->output.head : ((coupled *)(link->component_from))->output.head;
+    devs_message *ports_addr = (is_atomic_to) ? &(((atomic *)(link->component_to))->input) : &(((coupled *)(link->component_to))->input);
     while (msg_node != NULL)
     {
       if (msg_node->port_id == link->port_from)
       {
-        devs_message_push_back(&(a_to->input), link->port_to, msg_node->value);
+        devs_message_push_back(ports_addr, link->port_to, msg_node->value);
       }
       msg_node = msg_node->next;
     }
@@ -253,14 +306,14 @@ void coordinator_propagate_output(coordinator *c)
   while (n != NULL)
   {
     coupling *link = n->data;
-    atomic *a_from = (atomic *)link->component_from;
-    atomic *a_to = (atomic *)link->component_to;
-    devs_node *msg_node = a_from->output.head;
+    devs_message *ports_addr = &(((coupled *)(link->component_to))->output);
+    bool is_atomic_from = DEVS_IS_ATOMIC(*((int *)(link->component_from + 0)));
+    devs_node *msg_node = (is_atomic_from) ? ((atomic *)(link->component_from))->output.head : ((coupled *)(link->component_from))->output.head;
     while (msg_node != NULL)
     {
       if (msg_node->port_id == link->port_from)
       {
-        devs_message_push_back(&(a_to->output), link->port_to, msg_node->value);
+        devs_message_push_back(ports_addr, link->port_to, msg_node->value);
       }
       msg_node = msg_node->next;
     }
@@ -273,7 +326,17 @@ void coordinator_clear(coordinator *c)
   list_node *n = c->simulators.head;
   while (n != NULL)
   {
-    simulator_clear(n->data);
+    int *simulator_type = (int *)(n->data + 0);
+    bool is_simulator = DEVS_IS_SIMULATOR(*simulator_type);
+    bool is_coordinator = DEVS_IS_COORDINADOR(*simulator_type);
+    if (is_simulator)
+    {
+      simulator_clear(n->data);
+    }
+    else if (is_coordinator)
+    {
+      coordinator_clear(n->data);
+    }
     n = n->next;
   }
   devs_message_clear(&(c->m->input));

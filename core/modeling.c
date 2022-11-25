@@ -29,7 +29,7 @@ void deltcon_default(atomic* self, const double e) {
   self->deltext(self, 0);
 }
 
-void exit_default(const atomic *self) { return; }
+void exit_default(atomic *self) { return; }
 
 void resume(atomic* self, const double e) {
   self->state.sigma -= e;
@@ -50,7 +50,8 @@ void passivate(atomic* self) {
 
 void hold_in(atomic* self, const char* phase, const double sigma) {
   self->state.sigma = sigma;
-  strncpy(self->state.phase, phase, strlen(phase)+1);
+  size_t min_len = (strlen(phase) < MAX_PHASE_LENGTH) ? strlen(phase) : MAX_PHASE_LENGTH;
+  strncpy(self->state.phase, phase, min_len+1);
   return;
 }
 

@@ -19,36 +19,40 @@
  */
 #include "generator.h"
 
-void generator_init(atomic* self) {
-  generator_state* s = (generator_state*)self->state.user_data;
+void generator_init(atomic *self)
+{
+  generator_state *s = (generator_state *)self->state.user_data;
+  s->job_next_id = 1;
   hold_in(self, "active", s->period);
 }
 
-void generator_lambda(atomic* self) {
-  job* j = (job*)malloc(sizeof(job));
-  generator_state* s = self->state.user_data;
+void generator_lambda(atomic *self)
+{
+  job *j = (job *)malloc(sizeof(job));
+  generator_state *s = self->state.user_data;
   j->id = s->job_next_id;
   devs_message_push_back(&(self->output), GENERATOR_OUT, j);
 }
 
-void generator_deltint(atomic* self) {
-  generator_state* s = self->state.user_data;
+void generator_deltint(atomic *self)
+{
+  generator_state *s = self->state.user_data;
   s->job_next_id++;
   hold_in(self, "active", s->period);
 }
 
-void generator_deltext(atomic *self, const double e) {
+void generator_deltext(atomic *self, const double e)
+{
   resume(self, e);
   passivate(self);
 }
 
-
-atomic* generator_new(double period) {
-  atomic* generator = (atomic*)malloc(sizeof(atomic));
+atomic *generator_new(double period)
+{
+  atomic *generator = (atomic *)malloc(sizeof(atomic));
   generator->component_type = DEVS_ATOMIC;
-  generator_state* data = (generator_state*)malloc(sizeof(generator_state));
+  generator_state *data = (generator_state *)malloc(sizeof(generator_state));
   data->period = period;
-  data->job_next_id = 1;
   generator->state.user_data = data;
   generator->initialize = generator_init;
   generator->ta = ta_default;

@@ -29,7 +29,7 @@
 
 typedef struct st_atomic
 {
-  int component_type;
+  unsigned int component_type;
   devs_message input;
   devs_message output;
   devs_state state;
@@ -39,12 +39,12 @@ typedef struct st_atomic
   void (*deltint)(struct st_atomic *self);
   void (*deltext)(struct st_atomic *self, const double e);
   void (*deltcon)(struct st_atomic *self, const double e);
-  void (*exit)(const struct st_atomic *self);
+  void (*exit)(struct st_atomic *self);
 } atomic;
 
 typedef struct st_coupled
 {
-  int component_type;
+  unsigned int component_type;
   devs_message input;
   devs_message output;
   list components;
@@ -64,7 +64,7 @@ typedef struct st_coupling
 double ta_default(const atomic *self);
 void deltext_default(atomic *self, const double e);
 void deltcon_default(atomic *self, const double e);
-void exit_default(const atomic *self);
+void exit_default(atomic *self);
 void resume(atomic *self, const double e);
 void activate(atomic *self);
 void passivate(atomic *self);

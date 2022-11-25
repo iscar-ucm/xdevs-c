@@ -23,7 +23,14 @@
 #include <stdio.h>
 #include "modeling.h"
 
+#define DEVS_SIMULATOR 1
+#define DEVS_COORDINATOR 2
+#define DEVS_IS_SIMULATOR(simulator_type) (simulator_type == DEVS_SIMULATOR) ? true : false;
+#define DEVS_IS_COORDINADOR(simulator_type) (simulator_type == DEVS_COORDINATOR) ? true : false;
+
+
 typedef struct st_simulator {
+  unsigned int simulator_type;
   atomic* m;
   double tL, tN;
 } simulator;
@@ -38,6 +45,7 @@ void simulator_deltfcn(simulator* s, double t);
 void simulator_clear(simulator *s);
 
 typedef struct st_coordinator {
+  unsigned int simulator_type;
   coupled* m;
   list simulators;
   double tL, tN;
@@ -46,7 +54,7 @@ typedef struct st_coordinator {
 coordinator* coordinator_new(coupled* m);
 void coordinator_delete(coordinator* c);
 void coordinator_initialize(coordinator* c);
-double coordinator_ta(const coordinator* c);
+double coordinator_ta(const coordinator* c, double t);
 void coordinator_simulate(coordinator* c, unsigned long nsteps);
 void coordinator_exit (coordinator* c);
 
