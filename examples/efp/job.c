@@ -17,35 +17,13 @@
  * Contributors:
  *  - José Luis Risco Martín
  */
-#include "devs.h"
+#include "job.h"
 #include <stdlib.h>
-#include <stdbool.h>
 
-devs_message* new_devs_message() {
-  devs_message* list = (devs_message*)malloc(sizeof(devs_message));
-  list->head = NULL;
-  list->tail = NULL;
-  return list;
-}
-
-bool is_empty_devs_message(const devs_message* msg) {
-  return msg->head == NULL;
-}
-
-devs_message* push_back_devs_message(devs_message* msg, int port_id, void* value) {
-  devs_node* node = (devs_node*)malloc(sizeof(devs_node));
-  node->port_id = port_id;
-  node->value = value;
-  node->prev = NULL;
-  node->next = NULL;
-  if(is_empty_devs_message(msg)) {
-    msg->head = msg->tail = node;
-  }
-  else {
-    node->prev = msg->tail;
-    msg->tail->next = node;
-    msg->tail = node;
-  }
-  return msg;
+job *job_new(int id, double time) {
+  job* j = (job*)malloc(sizeof(job));
+  j->id = id;
+  j->time = time;
+  return j;
 }
 

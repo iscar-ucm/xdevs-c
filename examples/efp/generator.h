@@ -17,24 +17,31 @@
  * Contributors:
  *  - José Luis Risco Martín
  */
-#include "simulator.h"
+#ifndef GENERATOR_H
+#define GENERATOR_H
 
-simulator* simulator_new() {
-  simulator* sim = (simulator*)malloc(sizeof(simulator));
-  return sim;
-}
+#include <stdlib.h>
+#include <string.h>
+#include "job.h"
+#include "../../core/modeling.h"
 
-void simulator_delete(simulator* sim) {
-  sim->model->atomic_delete(sim->model);
-  free(sim);
-  return;
-}
+#define GENERATOR_IN 0
+#define GENERATOR_OUT 1
 
-void simulator_initialize(simulator* sim, const double clock) {
-  *tL = 0;
-  *tN = *tL + model->ta(model->state);
-}
+typedef struct st_generator_state {
+  double period;
+  int job_next_id;
+} generator_state;
 
-double simulator_ta(const struct atomic* model) {
-  return model->ta(model->state);
-}
+/**
+ * @brief      Creates a new generator atomic model.
+ *
+ * @details    Creates a new generator DEVS atomic model.
+ *
+ * @param      period Jobs generation period.
+ *
+ * @return     a pointer to the atomic model.
+ */
+atomic *generator_new(double period);
+
+#endif /* GENERATOR_H */

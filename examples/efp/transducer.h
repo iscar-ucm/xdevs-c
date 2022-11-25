@@ -17,23 +17,24 @@
  * Contributors:
  *  - José Luis Risco Martín
  */
-#ifndef SIMULATOR_H
-#define SIMULATOR_H
+#ifndef TRANSDUCER_H
+#define TRANSDUCER_H
 
-#include "atomic.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "job.h"
+#include "../../core/modeling.h"
 
-typedef struct st_simulator {
-  atomic* model;
-  double clock, tL, tN;
-} simulator;
+#define TRANSDUCER_ARRIVED 0
+#define TRANSDUCER_SOLVED 1
+#define TRANSDUCER_OUT 2
 
-simulator* simulator_new();
-void simulator_delete(simulator* sim);
-void simulator_initialize(simulator* sim, const atomic* model, const double clock);
-void simulator_exit ();
-double simulator_ta(simulator* sim);
-devs_message* simulator_lambda(const simulator* sim);
-void simulator_deltfcn(simulator* sim);
-void simulator_clear(simulator* sim);
+typedef struct st_transducer_state {
+  double clock, total_ta, obs_time;
+  list *jobs_arrived, *jobs_solved;
+} transducer_state;
 
-#endif /* SIMULATOR_H */
+atomic *transducer_new(double obs_time);
+
+#endif /* TRANSDUCER_H */

@@ -17,12 +17,16 @@
  * Contributors:
  *  - José Luis Risco Martín
  */
-#include "job.h"
-#include <stdlib.h>
+#ifndef JOB_H
+#define JOB_H
 
-job_t *new_job(int id, double time) {
-  job_t* job = (job_t*)malloc(sizeof(job_t));
-  job->id = id;
-  job->time = time;
-  return job;
-}
+#include <string.h>
+
+typedef struct st_job {
+  int id;
+  double time;
+} job;
+
+job *job_new(int id, double time);
+
+#endif /* JOB_H */
