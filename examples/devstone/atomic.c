@@ -19,15 +19,15 @@
  */
 #include "atomic.h"
 
-static long NUM_DELT_INTS = 0;
-static long NUM_DELT_EXTS = 0;
-static long NUM_EVENT_EXT = 0;
+long NUM_DELT_INTS = 0;
+long NUM_DELT_EXTS = 0;
+long NUM_EVENT_EXT = 0;
 
 void dsatomic_init(atomic *self)
 {
   dsatomic_state *s = self->state.user_data;
   s->event = (long *)malloc(sizeof(long));
-  *(s->event) = 0;
+  *(s->event) = 1;
   passivate(self);
 }
 
@@ -82,4 +82,9 @@ atomic *dsatomic_new(double preparation_time, double int_delay_time, double ext_
   dsatomic->deltcon = deltcon_default;
   dsatomic->exit = dsatomic_exit;
   return dsatomic;
+}
+
+void dhrystone(double delay) {
+  // TODO: Keep the CPU busy for delay seconds.
+  return;
 }
