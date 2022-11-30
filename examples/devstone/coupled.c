@@ -22,7 +22,7 @@
 
 coupled *coupled_ho_new(int width, int depth, double preparation_time, double int_delay_time, double ext_delay_time)
 {
-    coupled *ho = (coupled *)malloc(sizeof(coupled));
+    coupled *ho = coupled_new();
     if (depth == 1)
     {
         atomic *atomic = dsatomic_new(preparation_time, int_delay_time, ext_delay_time);
