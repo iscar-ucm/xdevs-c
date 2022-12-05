@@ -198,8 +198,14 @@ int main(int argc, char *argv[])
     switch (benchmark)
     {
     case BENCH_LI:
+        coupled_stone = coupled_li_new(width, depth, preparation_time, int_delay_time, ext_delay_time);
+        list_push_back(&(framework->components), coupled_stone);
+        add_coupling(framework, generator, GENERATOR_OUT, coupled_stone, DSCOUPLED_IN);
         break;
     case BENCH_HI:
+        coupled_stone = coupled_hi_new(width, depth, preparation_time, int_delay_time, ext_delay_time);
+        list_push_back(&(framework->components), coupled_stone);
+        add_coupling(framework, generator, GENERATOR_OUT, coupled_stone, DSCOUPLED_IN);
         break;
     case BENCH_HO:
         coupled_stone = coupled_ho_new(width, depth, preparation_time, int_delay_time, ext_delay_time);
@@ -208,6 +214,10 @@ int main(int argc, char *argv[])
         add_coupling(framework, generator, GENERATOR_OUT, coupled_stone, DSCOUPLED_IN_AUX);
         break;
     case BENCH_HOmod:
+        coupled_stone = coupled_homod_new(width, depth, preparation_time, int_delay_time, ext_delay_time);
+        list_push_back(&(framework->components), coupled_stone);
+        add_coupling(framework, generator, GENERATOR_OUT, coupled_stone, DSCOUPLED_IN);
+        add_coupling(framework, generator, GENERATOR_OUT, coupled_stone, DSCOUPLED_IN_AUX);
         break;
     }
 

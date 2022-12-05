@@ -25,4 +25,7 @@
 #define DSCOUPLED_OUT 2
 #define DSCOUPLED_OUT_AUX 3
 
+coupled* coupled_li_new( int width, int depth, double preparation_time, double int_delay_time, double ext_delay_time);
+coupled* coupled_hi_new( int width, int depth, double preparation_time, double int_delay_time, double ext_delay_time);
 coupled* coupled_ho_new( int width, int depth, double preparation_time, double int_delay_time, double ext_delay_time);
+coupled* coupled_homod_new( int width, int depth, double preparation_time, double int_delay_time, double ext_delay_time);
