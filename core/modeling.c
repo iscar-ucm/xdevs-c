@@ -20,6 +20,18 @@
 #include "modeling.h"
 #include <string.h>
 
+atomic* atomic_new() {
+  atomic *m = (atomic*) malloc(sizeof(atomic));
+  m->component_type = DEVS_ATOMIC;
+  m->input.size = 0;
+  m->input.head = NULL;
+  m->input.tail = NULL;
+  m->output.size = 0;
+  m->output.head = NULL;
+  m->output.tail = NULL;
+  return m;
+}
+
 double ta_default(const atomic *self) { return self->state.sigma; }
 
 void deltext_default(atomic *self, const double e) { return; }
@@ -63,8 +75,10 @@ bool phase_is(atomic *self, const char *phase) {
 coupled* coupled_new() {
   coupled *m = (coupled*) malloc(sizeof(coupled));
   m->component_type = DEVS_COUPLED;
+  m->input.size = 0;
   m->input.head = NULL;
   m->input.tail = NULL;
+  m->output.size = 0;
   m->output.head = NULL;
   m->output.tail = NULL;
   m->components.size = 0;

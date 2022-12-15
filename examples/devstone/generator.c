@@ -22,23 +22,25 @@
 void generator_init(atomic *self)
 {
   generator_state *s = (generator_state *)self->state.user_data;
-  s->job_next_id = 1;
-  hold_in(self, "active", s->period);
+  s->event = (long *)malloc(sizeof(long));
+  *(s->event) = 1;
+  hold_in(self, "active", s->preparation_time);
 }
 
 void generator_lambda(atomic *self)
 {
-  job *j = (job *)malloc(sizeof(job));
   generator_state *s = self->state.user_data;
-  j->id = s->job_next_id;
-  devs_message_push_back(&(self->output), GENERATOR_OUT, j);
+  devs_message_push_back(&(self->output), GENERATOR_OUT, s->event);
 }
 
 void generator_deltint(atomic *self)
 {
   generator_state *s = self->state.user_data;
-  s->job_next_id++;
-  hold_in(self, "active", s->period);
+  (*(s->event))++;
+  if (*(s->event) > s->max_events)
+    passivate(self);
+  else
+    hold_in(self, "active", s->period);
 }
 
 void generator_deltext(atomic *self, const double e)
@@ -47,11 +49,20 @@ void generator_deltext(atomic *self, const double e)
   passivate(self);
 }
 
-atomic *generator_new(double period)
+void generator_exit(atomic *self)
+{
+  generator_state *s = self->state.user_data;
+  free(s->event);
+  return;
+}
+
+atomic *generator_new(double preparation_time, double period, long max_events)
 {
   atomic *generator = atomic_new();
   generator_state *data = (generator_state *)malloc(sizeof(generator_state));
+  data->preparation_time = preparation_time;
   data->period = period;
+  data->max_events = max_events;
   generator->state.user_data = data;
   generator->initialize = generator_init;
   generator->ta = ta_default;
@@ -59,6 +70,6 @@ atomic *generator_new(double period)
   generator->deltint = generator_deltint;
   generator->deltext = generator_deltext;
   generator->deltcon = deltcon_default;
-  generator->exit = exit_default;
+  generator->exit = generator_exit;
   return generator;
 }

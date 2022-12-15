@@ -61,6 +61,7 @@ typedef struct st_coupling
   unsigned int port_to;
 } coupling;
 
+atomic* atomic_new();
 double ta_default(const atomic *self);
 void deltext_default(atomic *self, const double e);
 void deltcon_default(atomic *self, const double e);
